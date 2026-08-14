@@ -64,12 +64,11 @@ export function LoginPage() {
       <div className="relative hidden flex-col justify-between overflow-hidden bg-surface-950 p-10 text-white lg:flex">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(37,99,235,0.35),transparent_45%),radial-gradient(circle_at_80%_80%,rgba(34,197,94,0.18),transparent_40%)]" />
         <div className="relative flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 shadow-soft">
-            <Building2 className="h-5 w-5" />
+          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl shadow-soft">
+            <img src='./public/logo_mie.png' alt="MIE" className="h-full w-full object-cover" />
           </div>
           <div>
             <p className="font-display text-sm font-bold leading-none">MIE</p>
-            <p className="mt-0.5 text-[11px] text-surface-400">Monitor v1.4</p>
           </div>
         </div>
 
@@ -105,7 +104,7 @@ export function LoginPage() {
         </motion.div>
 
         <p className="relative text-xs text-surface-500">
-          © 2026 InfraEdu · Inst. Educativo San Martín
+          © 2026 MIE
         </p>
       </div>
 

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { ChevronsLeft, Building } from 'lucide-react';
+import { ChevronsLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { navItems } from '@/routes/navigation';
 import { useUiStore } from '@/store/uiStore';
@@ -11,8 +11,8 @@ export function Sidebar() {
   const contenido = (
     <div className="flex h-full flex-col">
       <div className={cn('flex h-16 shrink-0 items-center gap-2.5 px-4', sidebarColapsado && 'justify-center px-0')}>
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-white shadow-soft">
-          <Building className="h-5 w-5" />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-soft">
+          <img src="/logo_mie.png" alt="MIE logo" className="h-full w-full object-cover" />
         </div>
         <AnimatePresence>
           {!sidebarColapsado && (
@@ -23,7 +23,7 @@ export function Sidebar() {
               className="overflow-hidden whitespace-nowrap"
             >
               <p className="font-display text-sm font-bold leading-none text-surface-900 dark:text-white">MIE</p>
-              <p className="mt-0.5 text-[11px] text-surface-400">Monitor v1.4</p>
+              
             </motion.div>
           )}
         </AnimatePresence>
