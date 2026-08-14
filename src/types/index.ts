@@ -49,6 +49,7 @@ export interface Activo {
   categoria: string;
   espacioId: string;
   espacioNombre: string;
+  cantidad: number;
   estado: EstadoInfraestructura;
   responsable: string;
   valor: number;

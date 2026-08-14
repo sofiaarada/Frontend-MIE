@@ -2,8 +2,6 @@ import type {
   Usuario, Espacio, Activo, Ticket, KpiDashboard, Notificacion,
 } from '@/types';
 
-// Datos de ejemplo para desarrollar la UI sin depender del backend todavía.
-// Se reemplazan por llamadas reales a `apiClient` en cada service, sin tocar los componentes.
 
 export const usuarioActual: Usuario = {
   id: 'u1',
@@ -33,6 +31,13 @@ export const mockKpi: KpiDashboard = {
   indiceObjetivo: 85,
 };
 
+export const mockSedes = [
+  { id: 's1', nombre: 'Inst. Educativo San Martín' },
+  { id: 's2', nombre: 'Sede Norte' },
+];
+
+export const tiposEspacio = ['Aula', 'Laboratorio', 'Deportivo', 'Común', 'Servicios', 'Administrativo'];
+
 export const mockEspacios: Espacio[] = [
   { id: 'e1', codigo: 'A-101', nombre: 'Aula 101', tipo: 'Aula', sedeId: 's1', piso: '1er Piso', areaM2: 52, capacidad: 35, estado: 'BUENO', ultimaInspeccion: '2025-07-18', problemasActivos: 1 },
   { id: 'e2', codigo: 'A-102', nombre: 'Aula 102', tipo: 'Aula', sedeId: 's1', piso: '1er Piso', areaM2: 52, capacidad: 35, estado: 'REGULAR', ultimaInspeccion: '2025-07-06', problemasActivos: 2 },
@@ -44,12 +49,17 @@ export const mockEspacios: Espacio[] = [
   { id: 'e8', codigo: 'AUD-01', nombre: 'Auditorio', tipo: 'Común', sedeId: 's1', piso: '2do Piso', areaM2: 210, capacidad: 200, estado: 'REGULAR', ultimaInspeccion: '2025-06-30', problemasActivos: 4 },
 ];
 
+export const categoriasActivo = ['Mobiliario', 'Tecnología', 'Deportivo', 'Sanitario', 'Seguridad'];
+
 export const mockActivos: Activo[] = [
-  { id: 'ac1', codigo: 'MOB-0142', nombre: 'Silla Universitaria', categoria: 'Mobiliario', espacioId: 'e1', espacioNombre: 'Aula 101', estado: 'BUENO', responsable: 'Carlos Rivas', valor: 85000, fechaAdquisicion: '2022-02-01' },
-  { id: 'ac2', codigo: 'MOB-0143', nombre: 'Mesa de Laboratorio', categoria: 'Mobiliario', espacioId: 'e3', espacioNombre: 'Lab. Ciencias', estado: 'DETERIORADO', responsable: 'Carlos Rivas', valor: 210000, fechaAdquisicion: '2021-06-01' },
-  { id: 'ac3', codigo: 'TEC-0071', nombre: 'Proyector Epson EB', categoria: 'Tecnología', espacioId: 'e1', espacioNombre: 'Aula 101', estado: 'REGULAR', responsable: 'Patricia Núñez', valor: 93000, fechaAdquisicion: '2023-03-01' },
-  { id: 'ac4', codigo: 'TEC-0072', nombre: 'PC All-in-One', categoria: 'Tecnología', espacioId: 'e4', espacioNombre: 'Lab. Informática', estado: 'BUENO', responsable: 'Patricia Núñez', valor: 1800000, fechaAdquisicion: '2023-08-01' },
-  { id: 'ac5', codigo: 'DEP-0033', nombre: 'Tablero de Básquet', categoria: 'Deportivo', espacioId: 'e5', espacioNombre: 'Gimnasio', estado: 'REGULAR', responsable: 'Carlos Rivas', valor: 45000, fechaAdquisicion: '2020-07-01' },
+  { id: 'ac1', codigo: 'MOB-0142', nombre: 'Silla Universitaria', categoria: 'Mobiliario', espacioId: 'e1', espacioNombre: 'Aula 101', cantidad: 35, estado: 'BUENO', responsable: 'Carlos Rivas', valor: 85000, fechaAdquisicion: '2022-02-01' },
+  { id: 'ac2', codigo: 'MOB-0143', nombre: 'Mesa de Laboratorio', categoria: 'Mobiliario', espacioId: 'e3', espacioNombre: 'Lab. Ciencias', cantidad: 14, estado: 'DETERIORADO', responsable: 'Carlos Rivas', valor: 210000, fechaAdquisicion: '2021-06-01' },
+  { id: 'ac3', codigo: 'TEC-0071', nombre: 'Proyector Epson EB', categoria: 'Tecnología', espacioId: 'e1', espacioNombre: 'Aula 101', cantidad: 1, estado: 'REGULAR', responsable: 'Patricia Núñez', valor: 93000, fechaAdquisicion: '2023-03-01' },
+  { id: 'ac4', codigo: 'TEC-0072', nombre: 'PC All-in-One', categoria: 'Tecnología', espacioId: 'e4', espacioNombre: 'Lab. Informática', cantidad: 30, estado: 'BUENO', responsable: 'Patricia Núñez', valor: 1800000, fechaAdquisicion: '2023-08-01' },
+  { id: 'ac5', codigo: 'DEP-0033', nombre: 'Tablero de Básquet', categoria: 'Deportivo', espacioId: 'e5', espacioNombre: 'Gimnasio', cantidad: 2, estado: 'REGULAR', responsable: 'Carlos Rivas', valor: 45000, fechaAdquisicion: '2020-07-01' },
+  { id: 'ac6', codigo: 'MOB-0201', nombre: 'Estantería Metálica', categoria: 'Mobiliario', espacioId: 'e6', espacioNombre: 'Biblioteca', cantidad: 24, estado: 'BUENO', responsable: 'Luis García', valor: 96000, fechaAdquisicion: '2022-11-01' },
+  { id: 'ac7', codigo: 'SAN-0015', nombre: 'Inodoro Fluxómetro', categoria: 'Sanitario', espacioId: 'e7', espacioNombre: 'Baños PB', cantidad: 8, estado: 'CRITICO', responsable: 'Patricia Núñez', valor: 120000, fechaAdquisicion: '2019-04-01' },
+  { id: 'ac8', codigo: 'TEC-0089', nombre: 'Sistema de Audio', categoria: 'Tecnología', espacioId: 'e8', espacioNombre: 'Auditorio', cantidad: 1, estado: 'DETERIORADO', responsable: 'Carlos Rivas', valor: 195000, fechaAdquisicion: '2021-09-01' },
 ];
 
 export const mockTickets: Ticket[] = [
@@ -90,5 +100,5 @@ export const mockPresupuesto = [
   { mes: 'Jul', valor: 420 },
 ];
 
-// Simula latencia real de red para que loaders/skeletons se comporten como en producción.
+
 export const delay = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms));

@@ -6,6 +6,8 @@ import { MainLayout } from '@/layouts/MainLayout';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { DashboardPage } from '@/pages/dashboard/DashboardPage';
+import { EspaciosPage } from '@/pages/espacios/EspaciosPage';
+import { ActivosPage } from '@/pages/activos/ActivosPage';
 import { ModuloEnConstruccion } from '@/pages/placeholder/ModuloEnConstruccion';
 
 const queryClient = new QueryClient({
@@ -26,8 +28,8 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<MainLayout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/espacios" element={<ModuloEnConstruccion />} />
-              <Route path="/activos" element={<ModuloEnConstruccion />} />
+              <Route path="/espacios" element={<EspaciosPage />} />
+              <Route path="/activos" element={<ActivosPage />} />
               <Route path="/tickets" element={<ModuloEnConstruccion />} />
               <Route path="/mantenimiento" element={<ModuloEnConstruccion />} />
               <Route path="/evaluaciones" element={<ModuloEnConstruccion />} />
