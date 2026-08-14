@@ -11,10 +11,9 @@ export interface NavItem {
   badge?: number;
 }
 
-
 export const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { label: 'Espacios', path: '/espacios', icon: Building2, badge: 6 },
+  { label: 'Espacios', path: '/espacios', icon: Building2, badge: 8 },
   { label: 'Activos', path: '/activos', icon: Boxes },
   { label: 'Tickets', path: '/tickets', icon: TicketIcon, badge: 3 },
   { label: 'Mantenimiento', path: '/mantenimiento', icon: Wrench },
