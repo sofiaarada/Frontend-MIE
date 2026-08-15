@@ -11,6 +11,7 @@ import { ActivosPage } from '@/pages/activos/ActivosPage';
 import { TicketsPage } from '@/pages/tickets/TicketsPage';
 import { MantenimientoPage } from '@/pages/mantenimiento/MantenimientoPage';
 import { ModuloEnConstruccion } from '@/pages/placeholder/ModuloEnConstruccion';
+import { EvaluacionesPage } from '@/pages/evaluaciones/EvaluacionesPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -34,7 +35,7 @@ export default function App() {
               <Route path="/activos" element={<ActivosPage />} />
               <Route path="/tickets" element={<TicketsPage />} />
               <Route path="/mantenimiento" element={<MantenimientoPage />} />
-              <Route path="/evaluaciones" element={<ModuloEnConstruccion />} />
+              <Route path="/evaluaciones" element={<EvaluacionesPage />} />
               <Route path="/reportes" element={<ModuloEnConstruccion />} />
               <Route path="/usuarios" element={<ModuloEnConstruccion />} />
             </Route>

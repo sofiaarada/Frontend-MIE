@@ -56,6 +56,12 @@ export interface Activo {
   fechaAdquisicion: string;
 }
 
+export interface ChecklistItem {
+  id: string;
+  texto: string;
+  cumple: boolean;
+}
+
 export interface Inspeccion {
   id: string;
   espacioId: string;
@@ -66,6 +72,8 @@ export interface Inspeccion {
   itemsBuenos: number;
   observaciones: number;
   estado: EstadoInfraestructura;
+  checklist: ChecklistItem[];
+  notas?: string;
   evidencias: string[];
 }
 

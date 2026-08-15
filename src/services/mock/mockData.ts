@@ -1,5 +1,5 @@
 import type {
-  Usuario, Espacio, Activo, Ticket, Mantenimiento, KpiDashboard, Notificacion,
+  Usuario, Espacio, Activo, Ticket, Mantenimiento, Tnspeccion, KpiDashboard, Notificacion,
 } from '@/types';
 
 
@@ -81,6 +81,25 @@ export const mockMantenimientos: Mantenimiento[] = [
   { id: 'm7', titulo: 'Poda y mantenimiento de jardines', responsable: 'Luis García', materiales: ['Combustible desmalezadora'], costo: 22000, fechaProgramada: '2026-08-28', estado: 'PENDIENTE' },
 ];
 
+export const checklistBase = [
+  'Iluminación', 'Mobiliario', 'Pisos y paredes', 'Instalación eléctrica',
+  'Ventilación', 'Puertas y ventanas', 'Seguridad', 'Limpieza general',
+];
+
+const generarChecklist = (buenos: number, total: number): { id: string; texto: string; cumple: boolean }[] =>
+  Array.from({ length: total }, (_, i) => ({
+    id: `chk-${i}`,
+    texto: checklistBase[i % checklistBase.length] + (i >= checklistBase.length ? ` (${Math.floor(i / checklistBase.length) + 1})` : ''),
+    cumple: i < buenos,
+  }));
+
+export const mockInspecciones: Inspeccion[] = [
+  { id: 'i1', espacioId: 'e3', espacioNombre: 'Lab. Ciencias', inspector: 'Patricia Núñez', fecha: '2026-07-13', puntajeGlobal: 48, itemsBuenos: 22, observaciones: 7, estado: 'DETERIORADO', checklist: generarChecklist(22, 29), notas: 'Mesones con daño por reactivos, requiere restauración.', evidencias: [] },
+  { id: 'i2', espacioId: 'e7', espacioNombre: 'Baños Planta Baja', inspector: 'Luis García', fecha: '2026-07-05', puntajeGlobal: 28, itemsBuenos: 10, observaciones: 11, estado: 'CRITICO', checklist: generarChecklist(10, 21), notas: 'Fuga activa bajo el lavamanos central, atención inmediata.', evidencias: [] },
+  { id: 'i3', espacioId: 'e8', espacioNombre: 'Auditorio', inspector: 'Sofía Morales', fecha: '2026-06-30', puntajeGlobal: 61, itemsBuenos: 38, observaciones: 5, estado: 'REGULAR', checklist: generarChecklist(38, 43), notas: 'Desprendimiento de pintura en paredes laterales.', evidencias: [] },
+  { id: 'i4', espacioId: 'e4', espacioNombre: 'Lab. Informática', inspector: 'Patricia Núñez', fecha: '2026-07-12', puntajeGlobal: 84, itemsBuenos: 25, observaciones: 2, estado: 'BUENO', checklist: generarChecklist(25, 27), notas: 'Sin observaciones relevantes.', evidencias: [] },
+  { id: 'i5', espacioId: 'e2', espacioNombre: 'Aula 102', inspector: 'Luis García', fecha: '2026-07-06', puntajeGlobal: 72, itemsBuenos: 20, observaciones: 3, estado: 'REGULAR', checklist: generarChecklist(20, 23), notas: 'Luminarias fuera de servicio en fondo del salón.', evidencias: [] },
+];
 
 export const mockNotificaciones: Notificacion[] = [
   { id: 'n1', titulo: 'Fuga de agua detectada', descripcion: 'Baños PB requiere atención inmediata.', tipo: 'ALERTA', leida: false, fecha: '2025-07-21T08:10:00' },
