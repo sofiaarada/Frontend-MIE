@@ -1,5 +1,5 @@
 import type {
-  Usuario, Espacio, Activo, Ticket, KpiDashboard, Notificacion,
+  Usuario, Espacio, Activo, Ticket, Mantenimiento, KpiDashboard, Notificacion,
 } from '@/types';
 
 
@@ -70,6 +70,17 @@ export const mockTickets: Ticket[] = [
   { id: 't5', codigo: 'OT-2025-0117', titulo: 'Reparación techo gimnasio', descripcion: 'Filtración de agua en esquina noreste.', prioridad: 'ALTA', estado: 'FINALIZADO', espacioNombre: 'Gimnasio', responsable: 'Beril Cebar', creadoPor: 'María Alvarado', fechaCreacion: '2025-07-15', fechaVencimiento: '2025-07-19' },
   { id: 't6', codigo: 'OT-2025-0116', titulo: 'Calibración proyector Aula 102', descripcion: 'Imagen desenfocada y colores desaturados.', prioridad: 'BAJA', estado: 'FINALIZADO', espacioNombre: 'Aula 102', responsable: 'Ana Torres', creadoPor: 'Luis García', fechaCreacion: '2025-07-10', fechaVencimiento: '2025-07-18' },
 ];
+
+export const mockMantenimientos: Mantenimiento[] = [
+  { id: 'm1', ticketId: 't1', titulo: 'Reparación cañería baños PB', responsable: 'Carlos Rivas', materiales: ['Cañería PVC 1/2"', 'Sellador', 'Llave de paso'], costo: 45000, fechaProgramada: '2026-08-18', estado: 'EN_PROCESO' },
+  { id: 'm2', ticketId: 't2', titulo: 'Cambio lámparas fluorescentes', responsable: 'Patricia Núñez', materiales: ['Tubo LED 18W (x5)'], costo: 18000, fechaProgramada: '2026-08-22', estado: 'PENDIENTE' },
+  { id: 'm3', ticketId: 't3', titulo: 'Restauración mesas laboratorio', responsable: 'Carlos Rivas', materiales: ['Resina epóxica', 'Lija fina', 'Barniz'], costo: 62000, fechaProgramada: '2026-08-25', estado: 'PENDIENTE' },
+  { id: 'm4', titulo: 'Mantenimiento preventivo climatización', responsable: 'Patricia Núñez', materiales: ['Filtros de aire (x4)', 'Gas refrigerante'], costo: 95000, fechaProgramada: '2026-08-14', estado: 'PENDIENTE' },
+  { id: 'm5', ticketId: 't5', titulo: 'Reparación techo gimnasio', responsable: 'Luis García', materiales: ['Membrana asfáltica', 'Sellador de techos'], costo: 130000, fechaProgramada: '2026-07-19', estado: 'FINALIZADO' },
+  { id: 'm6', ticketId: 't6', titulo: 'Calibración proyector Aula 102', responsable: 'Patricia Núñez', materiales: [], costo: 8000, fechaProgramada: '2026-07-18', estado: 'FINALIZADO' },
+  { id: 'm7', titulo: 'Poda y mantenimiento de jardines', responsable: 'Luis García', materiales: ['Combustible desmalezadora'], costo: 22000, fechaProgramada: '2026-08-28', estado: 'PENDIENTE' },
+];
+
 
 export const mockNotificaciones: Notificacion[] = [
   { id: 'n1', titulo: 'Fuga de agua detectada', descripcion: 'Baños PB requiere atención inmediata.', tipo: 'ALERTA', leida: false, fecha: '2025-07-21T08:10:00' },

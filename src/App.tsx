@@ -9,6 +9,7 @@ import { DashboardPage } from '@/pages/dashboard/DashboardPage';
 import { EspaciosPage } from '@/pages/espacios/EspaciosPage';
 import { ActivosPage } from '@/pages/activos/ActivosPage';
 import { TicketsPage } from '@/pages/tickets/TicketsPage';
+import { MantenimientoPage } from '@/pages/mantenimiento/MantenimientoPage';
 import { ModuloEnConstruccion } from '@/pages/placeholder/ModuloEnConstruccion';
 
 const queryClient = new QueryClient({
@@ -32,7 +33,7 @@ export default function App() {
               <Route path="/espacios" element={<EspaciosPage />} />
               <Route path="/activos" element={<ActivosPage />} />
               <Route path="/tickets" element={<TicketsPage />} />
-              <Route path="/mantenimiento" element={<ModuloEnConstruccion />} />
+              <Route path="/mantenimiento" element={<MantenimientoPage />} />
               <Route path="/evaluaciones" element={<ModuloEnConstruccion />} />
               <Route path="/reportes" element={<ModuloEnConstruccion />} />
               <Route path="/usuarios" element={<ModuloEnConstruccion />} />
