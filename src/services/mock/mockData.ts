@@ -1,7 +1,9 @@
 import type {
-  Usuario, Espacio, Activo, Ticket, Mantenimiento, Tnspeccion, KpiDashboard, Notificacion,
+  Usuario, Espacio, Activo, Ticket, Mantenimiento, Inspeccion, KpiDashboard, Notificacion,
 } from '@/types';
 
+// Datos de ejemplo para desarrollar la UI sin depender del backend todavía.
+// Se reemplazan por llamadas reales a `apiClient` en cada service, sin tocar los componentes.
 
 export const usuarioActual: Usuario = {
   id: 'u1',
@@ -130,5 +132,25 @@ export const mockPresupuesto = [
   { mes: 'Jul', valor: 420 },
 ];
 
+export const mockIndiceEvolucion = [
+  { mes: 'Ene', indice: 62 }, { mes: 'Feb', indice: 65 }, { mes: 'Mar', indice: 64 },
+  { mes: 'Abr', indice: 68 }, { mes: 'May', indice: 70 }, { mes: 'Jun', indice: 71 },
+  { mes: 'Jul', indice: 74 },
+];
 
+export const mockPresupuestoComparativo = [
+  { mes: 'Ene', presupuestado: 320000, real: 298000 },
+  { mes: 'Feb', presupuestado: 280000, real: 305000 },
+  { mes: 'Mar', presupuestado: 410000, real: 386000 },
+  { mes: 'Abr', presupuestado: 260000, real: 241000 },
+  { mes: 'May', presupuestado: 390000, real: 412000 },
+  { mes: 'Jun', presupuestado: 340000, real: 329000 },
+  { mes: 'Jul', presupuestado: 420000, real: 358000 },
+];
+
+
+
+
+
+// Simula latencia real de red para que loaders/skeletons se comporten como en producción.
 export const delay = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms));

@@ -68,7 +68,7 @@ export function LoginPage() {
             <img src='./public/logo_mie.png' alt="MIE" className="h-full w-full object-cover" />
           </div>
           <div>
-            <p className="font-display text-sm font-bold leading-none">MIE</p>
+            <p className="font-display text-sm font-bold leading-none">Monitoreo de Infraestructura Educacional</p>
           </div>
         </div>
 
@@ -104,7 +104,7 @@ export function LoginPage() {
         </motion.div>
 
         <p className="relative text-xs text-surface-500">
-          © 2026 MIE
+          © 2026 MIE - Monitoreo de Infraestructura Educacional
         </p>
       </div>
 

@@ -10,8 +10,9 @@ import { EspaciosPage } from '@/pages/espacios/EspaciosPage';
 import { ActivosPage } from '@/pages/activos/ActivosPage';
 import { TicketsPage } from '@/pages/tickets/TicketsPage';
 import { MantenimientoPage } from '@/pages/mantenimiento/MantenimientoPage';
-import { ModuloEnConstruccion } from '@/pages/placeholder/ModuloEnConstruccion';
 import { EvaluacionesPage } from '@/pages/evaluaciones/EvaluacionesPage';
+import { ReportesPage } from '@/pages/reportes/ReportesPage';
+import { UsuariosPage } from '@/pages/usuarios/UsuariosPage';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -36,8 +37,8 @@ export default function App() {
               <Route path="/tickets" element={<TicketsPage />} />
               <Route path="/mantenimiento" element={<MantenimientoPage />} />
               <Route path="/evaluaciones" element={<EvaluacionesPage />} />
-              <Route path="/reportes" element={<ModuloEnConstruccion />} />
-              <Route path="/usuarios" element={<ModuloEnConstruccion />} />
+              <Route path="/reportes" element={<ReportesPage />} />
+              <Route path="/usuarios" element={<UsuariosPage />} />
             </Route>
           </Route>
 
