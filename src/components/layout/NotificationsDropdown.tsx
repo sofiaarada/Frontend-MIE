@@ -33,6 +33,7 @@ export function NotificationsDropdown() {
   return (
     <div className="relative" ref={ref}>
       <button
+        data-tour="notificaciones"
         onClick={() => setAbierto((a) => !a)}
         className="focus-ring relative flex h-9 w-9 items-center justify-center rounded-lg text-surface-500 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-surface-800"
       >

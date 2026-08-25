@@ -5,6 +5,7 @@ import { AuthLayout } from '@/layouts/AuthLayout';
 import { MainLayout } from '@/layouts/MainLayout';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
 import { LoginPage } from '@/pages/auth/LoginPage';
+import { LandingPage } from '@/pages/landing/LandingPage';
 import { DashboardPage } from '@/pages/dashboard/DashboardPage';
 import { EspaciosPage } from '@/pages/espacios/EspaciosPage';
 import { ActivosPage } from '@/pages/activos/ActivosPage';
@@ -23,7 +24,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<LandingPage />} />
 
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
@@ -42,7 +43,7 @@ export default function App() {
             </Route>
           </Route>
 
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
       <Toaster richColors position="top-right" />

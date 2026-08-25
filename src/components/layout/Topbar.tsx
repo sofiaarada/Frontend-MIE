@@ -1,18 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
-import { Menu, Search, Sun, Moon, LogOut, User, ChevronDown } from 'lucide-react';
+import { Menu, Search, Sun, Moon, LogOut, User, ChevronDown, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Breadcrumb } from './Breadcrumb';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { Avatar } from '@/components/ui/Avatar';
 import { useThemeStore } from '@/store/themeStore';
 import { useUiStore } from '@/store/uiStore';
 import { useAuthStore } from '@/store/authStore';
+import { useTourStore } from '@/store/tourStore';
 
 export function Topbar() {
   const { tema, alternarTema } = useThemeStore();
   const { setSidebarMobileAbierto } = useUiStore();
   const { session, cerrarSesion } = useAuthStore();
+  const abrirTour = useTourStore((s) => s.abrirTour);
   const navigate = useNavigate();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -34,15 +35,11 @@ export function Topbar() {
         <Menu className="h-5 w-5" />
       </button>
 
-      <div className="hidden lg:block">
-        <Breadcrumb />
-      </div>
-
-      <div className="relative ml-0 hidden max-w-xs flex-1 sm:block lg:ml-4">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-surface-400" />
+      <div data-tour="buscador" className="relative hidden min-w-0 max-w-lg flex-1 sm:block">
+        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-surface-400" />
         <input
-          placeholder="Buscar espacio, activo, ticket..."
-          className="focus-ring h-9 w-full rounded-lg border border-surface-200 bg-surface-50 pl-9 pr-3 text-sm text-surface-700 placeholder:text-surface-400 dark:border-surface-800 dark:bg-surface-800/60 dark:text-surface-200"
+          placeholder="Buscar espacios, activos, órdenes…"
+          className="focus-ring h-10 w-full rounded-full border border-transparent bg-surface-100 pl-11 pr-4 text-sm text-surface-700 transition-colors placeholder:text-surface-400 focus:border-primary-300 focus:bg-white dark:focus:border-primary-500/40 dark:focus:bg-surface-900 dark:text-surface-200"
         />
       </div>
 
@@ -53,6 +50,7 @@ export function Topbar() {
         </span>
 
         <button
+          data-tour="tema"
           onClick={alternarTema}
           className="focus-ring flex h-9 w-9 items-center justify-center rounded-lg text-surface-500 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-surface-800"
         >
@@ -63,6 +61,7 @@ export function Topbar() {
 
         <div className="relative" ref={ref}>
           <button
+            data-tour="perfil"
             onClick={() => setMenuAbierto((a) => !a)}
             className="focus-ring ml-1 flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 hover:bg-surface-100 dark:hover:bg-surface-800"
           >
@@ -85,6 +84,15 @@ export function Topbar() {
               >
                 <button className="focus-ring flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-surface-600 hover:bg-surface-100 dark:text-surface-300 dark:hover:bg-surface-800">
                   <User className="h-4 w-4" /> Mi perfil
+                </button>
+                <button
+                  onClick={() => {
+                    setMenuAbierto(false);
+                    abrirTour();
+                  }}
+                  className="focus-ring flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-surface-600 hover:bg-surface-100 dark:text-surface-300 dark:hover:bg-surface-800"
+                >
+                  <GraduationCap className="h-4 w-4" /> Ver tutorial de nuevo
                 </button>
                 <button
                   onClick={() => {

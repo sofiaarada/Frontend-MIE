@@ -29,7 +29,7 @@ export function Sidebar() {
         </AnimatePresence>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
+      <nav data-tour="sidebar" className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
@@ -66,7 +66,7 @@ export function Sidebar() {
         className="focus-ring m-3 hidden items-center justify-center gap-2 rounded-lg border border-surface-200 py-2 text-xs font-medium text-surface-500 hover:bg-surface-100 dark:border-surface-800 dark:text-surface-400 dark:hover:bg-surface-800 lg:flex"
       >
         <ChevronsLeft className={cn('h-4 w-4 transition-transform', sidebarColapsado && 'rotate-180')} />
-        {!sidebarColapsado && 'Colapsar'}
+        {!sidebarColapsado && 'Cerrar'}
       </button>
     </div>
   );

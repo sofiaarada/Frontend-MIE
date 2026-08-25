@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -73,6 +73,12 @@
   html {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    /* Escala base cómoda: todo el layout (sidebar, topbar, cards, tablas)
+       escala junto con el rem, sin depender del zoom del navegador. */
+    font-size: 17px;
+  }
+  @media (min-width: 1280px) {
+    html { font-size: 18px; }
   }
   body {
     @apply bg-surface-50 text-surface-800 dark:bg-surface-950 dark:text-surface-100;

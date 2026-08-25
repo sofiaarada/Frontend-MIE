@@ -3,13 +3,12 @@ import {
   delay, mockKpi, mockActivos, mockTickets, mockIndiceEvolucion,
   mockPresupuestoComparativo,
 } from './mock/mockData';
-import { formatearMoneda } from '@/utils/format';
 
 const USE_MOCK = true;
 
 export interface DatosReporte {
   columnas: ColumnaReporte[];
-  filas: Record<string, string>[];
+  filas: Record<string, unknown>[];
 }
 
 const labelPrioridad = { BAJA: 'Baja', MEDIA: 'Media', ALTA: 'Alta', URGENTE: 'Urgente' };
@@ -48,10 +47,10 @@ export const reportesService = {
         columnas: [
           { clave: 'codigo', titulo: 'Código' }, { clave: 'nombre', titulo: 'Activo' },
           { clave: 'categoria', titulo: 'Categoría' }, { clave: 'estado', titulo: 'Estado' },
-          { clave: 'valor', titulo: 'Valor' },
+          { clave: 'valor', titulo: 'Valor', tipo: 'moneda' },
         ],
         filas: data.map((a) => ({
-          codigo: a.codigo, nombre: a.nombre, categoria: a.categoria, estado: a.estado, valor: formatearMoneda(a.valor),
+          codigo: a.codigo, nombre: a.nombre, categoria: a.categoria, estado: a.estado, valor: a.valor,
         })),
       };
     }
@@ -88,14 +87,16 @@ export const reportesService = {
       await delay(400);
       return {
         columnas: [
-          { clave: 'mes', titulo: 'Mes' }, { clave: 'presupuestado', titulo: 'Presupuestado' },
-          { clave: 'real', titulo: 'Ejecutado' }, { clave: 'diferencia', titulo: 'Diferencia' },
+          { clave: 'mes', titulo: 'Mes' },
+          { clave: 'presupuestado', titulo: 'Presupuestado', tipo: 'moneda' },
+          { clave: 'real', titulo: 'Ejecutado', tipo: 'moneda' },
+          { clave: 'diferencia', titulo: 'Diferencia', tipo: 'moneda' },
         ],
         filas: mockPresupuestoComparativo.map((p) => ({
           mes: p.mes,
-          presupuestado: formatearMoneda(p.presupuestado),
-          real: formatearMoneda(p.real),
-          diferencia: formatearMoneda(p.presupuestado - p.real),
+          presupuestado: p.presupuestado,
+          real: p.real,
+          diferencia: p.presupuestado - p.real,
         })),
       };
     }

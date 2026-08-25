@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { exportarPDF, exportarExcel } from '@/utils/exportes';
+import { formatearCelda } from '@/utils/format';
 import type { DatosReporte } from '@/services/reportesService';
 
 interface ReportePreviewModalProps {
@@ -54,7 +55,7 @@ export function ReportePreviewModal({ abierto, onCerrar, titulo, archivo, usaFec
           <Button variant="outline" icono={<FileDown className="h-4 w-4" />} disabled={!datos || datos.filas.length === 0} onClick={() => datos && exportarPDF(archivo, titulo, datos.columnas, datos.filas)}>
             Descargar PDF
           </Button>
-          <Button icono={<FileSpreadsheet className="h-4 w-4" />} disabled={!datos || datos.filas.length === 0} onClick={() => datos && exportarExcel(archivo, titulo, datos.filas)}>
+          <Button icono={<FileSpreadsheet className="h-4 w-4" />} disabled={!datos || datos.filas.length === 0} onClick={() => datos && exportarExcel(archivo, titulo, titulo, datos.columnas, datos.filas)}>
             Descargar Excel
           </Button>
         </>
@@ -85,7 +86,7 @@ export function ReportePreviewModal({ abierto, onCerrar, titulo, archivo, usaFec
               <tbody>
                 {datos.filas.map((fila, i) => (
                   <tr key={i} className="border-b border-surface-50 last:border-0 dark:border-surface-800/60">
-                    {datos.columnas.map((col) => <td key={col.clave} className="px-3 py-2 text-surface-600 dark:text-surface-300">{fila[col.clave]}</td>)}
+                    {datos.columnas.map((col) => <td key={col.clave} className="px-3 py-2 text-surface-600 dark:text-surface-300">{formatearCelda(fila[col.clave], col.tipo)}</td>)}
                   </tr>
                 ))}
               </tbody>
