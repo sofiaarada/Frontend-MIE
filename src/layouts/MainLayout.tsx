@@ -13,9 +13,9 @@ export function MainLayout() {
   // Primera vez: el tutorial se abre solo, apenas entró al sistema.
   useEffect(() => {
     if (visto) return;
-    const t = setTimeout(abrirTour, 800); // deja asentar el layout antes de medir
+    const t = setTimeout(abrirTour, 800); 
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   return (

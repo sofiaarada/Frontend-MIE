@@ -13,9 +13,7 @@ export interface DatosReporte {
 
 const labelPrioridad = { BAJA: 'Baja', MEDIA: 'Media', ALTA: 'Alta', URGENTE: 'Urgente' };
 
-// Cada función arma columnas + filas listas para mostrar en la vista previa
-// y para exportar (PDF/Excel). El día que exista backend, cada una pasa a
-// pedir estos mismos datos ya armados a un endpoint de /reportes/*.
+
 export const reportesService = {
   async reporteMensual(): Promise<DatosReporte> {
     if (USE_MOCK) {
@@ -32,8 +30,7 @@ export const reportesService = {
         ],
       };
     }
-    // const { data } = await apiClient.get<DatosReporte>('/reportes/mensual');
-    // return data;
+    
     throw new Error('Backend no configurado');
   },
 
@@ -54,8 +51,7 @@ export const reportesService = {
         })),
       };
     }
-    // const { data } = await apiClient.get<DatosReporte>('/reportes/inventario', { params: { desde, hasta } });
-    // return data;
+    
     throw new Error('Backend no configurado');
   },
 
@@ -77,8 +73,7 @@ export const reportesService = {
         })),
       };
     }
-    // const { data } = await apiClient.get<DatosReporte>('/reportes/ot-por-categoria', { params: { desde, hasta } });
-    // return data;
+    
     throw new Error('Backend no configurado');
   },
 
@@ -100,8 +95,7 @@ export const reportesService = {
         })),
       };
     }
-    // const { data } = await apiClient.get<DatosReporte>('/reportes/presupuesto');
-    // return data;
+    
     throw new Error('Backend no configurado');
   },
 

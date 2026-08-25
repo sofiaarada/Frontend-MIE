@@ -109,7 +109,7 @@ const PAD_OBJETIVO = 8;
 const VELO = 'rgba(2, 6, 23, 0.72)';
 const RECORTE = `0 0 0 9999px ${VELO}`;
 
-/** Primer elemento que matchea el selector y está realmente visible. */
+
 function buscarVisible(selector: string): HTMLElement | null {
   for (const el of document.querySelectorAll<HTMLElement>(selector)) {
     const rect = el.getBoundingClientRect();
@@ -134,7 +134,7 @@ export function OnboardingTour() {
   const paso = pasos[indice];
   const esUltimo = indice === pasos.length - 1;
 
-  /** Posiciona recorte y tarjeta según el objetivo del paso actual. */
+  
   const medir = useCallback(() => {
     if (!abierto) return;
     const anchoTarjeta = Math.min(440, window.innerWidth - 32);
@@ -182,11 +182,11 @@ export function OnboardingTour() {
     setTooltip({ top, left });
   }, [abierto, paso]);
 
-  // Entrada a cada paso.
+  
   useEffect(() => {
     if (!abierto) return;
 
-    // En mobile el menú vive en un drawer cerrado: lo abrimos para poder señalarlo.
+    
     if (paso.tipo === 'objetivo' && paso.selector === '[data-tour="sidebar"]') {
       if (!window.matchMedia('(min-width: 1024px)').matches) {
         setSidebarMobileAbierto(true);
@@ -205,14 +205,14 @@ export function OnboardingTour() {
     }
 
     const raf = requestAnimationFrame(medir);
-    const t = setTimeout(medir, 380); // segunda pasada por si hubo scroll suave
+    const t = setTimeout(medir, 380);
     return () => {
       cancelAnimationFrame(raf);
       clearTimeout(t);
     };
   }, [abierto, indice, medir, paso, setSidebarMobileAbierto]);
 
-  // Recalcular ante scroll y resize.
+  
   useEffect(() => {
     if (!abierto) return;
     window.addEventListener('resize', medir);
@@ -223,7 +223,7 @@ export function OnboardingTour() {
     };
   }, [abierto, medir]);
 
-  // Si abrimos el drawer para el tour, lo plegamos al salir.
+
   useEffect(() => {
     if (!abierto && abrioDrawerRef.current) {
       setSidebarMobileAbierto(false);

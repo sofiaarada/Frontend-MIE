@@ -371,7 +371,7 @@ function Footer() {
             </li>
             <li className="flex items-center gap-2.5">
               <Phone className="h-4 w-4 shrink-0 text-primary-500" />
-              +54 11 5555-0198 · Lun a Vie de 8 a 16 h
+              +57 3003834545 · Lun a Vie de 8 am a 4 pm
             </li>
             <li className="flex items-center gap-2.5">
               <MapPin className="h-4 w-4 shrink-0 text-primary-500" />

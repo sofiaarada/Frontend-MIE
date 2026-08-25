@@ -46,7 +46,7 @@ export function LoginPage() {
 
   return (
     <div className="relative flex min-h-svh items-center justify-center overflow-hidden bg-surface-50 px-4 py-10 dark:bg-surface-950 sm:px-6">
-      {/* Fondo — plano arquitectónico + luces de marca */}
+      
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_40%,black,transparent)]"

@@ -91,7 +91,7 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
       }
     >
       <fieldset disabled={soloLectura} className="space-y-4">
-        {/* Zona de drag & drop para la fotografía */}
+        
         <div
           onDragOver={(e) => { e.preventDefault(); setArrastrando(true); }}
           onDragLeave={() => setArrastrando(false)}

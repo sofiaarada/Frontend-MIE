@@ -40,7 +40,7 @@ export function ReportePreviewModal({ abierto, onCerrar, titulo, archivo, usaFec
       setHasta('');
       refrescar();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [abierto]);
 
   return (

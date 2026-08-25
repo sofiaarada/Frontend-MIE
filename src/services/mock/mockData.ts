@@ -2,8 +2,7 @@ import type {
   Usuario, Espacio, Activo, Ticket, Mantenimiento, Inspeccion, KpiDashboard, Notificacion,
 } from '@/types';
 
-// Datos de ejemplo para desarrollar la UI sin depender del backend todavía.
-// Se reemplazan por llamadas reales a `apiClient` en cada service, sin tocar los componentes.
+
 
 export const usuarioActual: Usuario = {
   id: 'u1',

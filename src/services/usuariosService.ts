@@ -14,8 +14,7 @@ export interface FiltrosUsuarios {
 
 export type UsuarioInput = Omit<Usuario, 'id' | 'creadoEn'>;
 
-// Mismo patrón de siempre: listar/crear/actualizar/eliminar sobre una base
-// en memoria mientras no exista el backend.
+
 export const usuariosService = {
   async listar(filtros: FiltrosUsuarios = {}): Promise<Paginado<Usuario>> {
     if (USE_MOCK) {
@@ -33,8 +32,7 @@ export const usuariosService = {
       const start = (page - 1) * pageSize;
       return { data: data.slice(start, start + pageSize), total: data.length, page, pageSize };
     }
-    // const { data } = await apiClient.get<Paginado<Usuario>>('/usuarios', { params: filtros });
-    // return data;
+    
     throw new Error('Backend no configurado');
   },
 
@@ -45,8 +43,7 @@ export const usuariosService = {
       db.unshift(nuevo);
       return nuevo;
     }
-    // const { data } = await apiClient.post<Usuario>('/usuarios', input);
-    // return data;
+    
     throw new Error('Backend no configurado');
   },
 

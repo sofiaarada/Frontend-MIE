@@ -83,7 +83,7 @@ export function Sidebar() {
         {contenido}
       </aside>
 
-      {/* Mobile: drawer con overlay */}
+      
       <AnimatePresence>
         {sidebarMobileAbierto && (
           <>

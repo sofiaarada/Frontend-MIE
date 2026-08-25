@@ -15,9 +15,7 @@ export type InspeccionInput = {
   evidencias: string[];
 };
 
-// A partir del checklist se calculan el puntaje, los ítems buenos, las
-// observaciones y el estado — igual que lo haría el backend, para que la
-// UI no tenga que repetir esta lógica en cada lugar donde se muestra.
+
 const calcularResultado = (checklist: ChecklistItem[]) => {
   const total = checklist.length || 1;
   const itemsBuenos = checklist.filter((c) => c.cumple).length;
@@ -34,8 +32,7 @@ export const inspeccionesService = {
       await delay(400);
       return [...db].sort((a, b) => b.fecha.localeCompare(a.fecha));
     }
-    // const { data } = await apiClient.get<Inspeccion[]>('/evaluaciones');
-    // return data;
+    
     throw new Error('Backend no configurado');
   },
 
@@ -46,8 +43,7 @@ export const inspeccionesService = {
       db.unshift(nueva);
       return nueva;
     }
-    // const { data } = await apiClient.post<Inspeccion>('/evaluaciones', input);
-    // return data;
+    
     throw new Error('Backend no configurado');
   },
 

@@ -12,7 +12,7 @@ export interface ColumnaReporte {
 
 type FilasReporte = Record<string, unknown>[];
 
-/** Interpreta números que puedan venir como string formateado en es-AR. */
+
 function aNumero(valor: unknown): number | null {
   if (typeof valor === 'number') return Number.isNaN(valor) ? null : valor;
   if (typeof valor === 'string') {
