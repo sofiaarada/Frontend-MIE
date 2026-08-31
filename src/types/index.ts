@@ -1,10 +1,11 @@
 
 
-export type Role = 'ADMIN' | 'COORDINADOR' | 'INSPECTOR' | 'MANTENIMIENTO';
+/** Los roles se administran desde la tabla `roles`; no se deben codificar en el cliente. */
+export type Role = string;
 
 export type EstadoInfraestructura = 'BUENO' | 'REGULAR' | 'DETERIORADO' | 'CRITICO';
 
-export type EstadoTicket = 'PENDIENTE' | 'EN_PROCESO' | 'FINALIZADO';
+export type EstadoTicket = 'PENDIENTE' | 'EN_PROCESO' | 'FINALIZADO' | 'CANCELADO';
 
 export type Prioridad = 'BAJA' | 'MEDIA' | 'ALTA' | 'URGENTE';
 
@@ -120,7 +121,7 @@ export interface Notificacion {
   titulo: string;
   descripcion: string;
   tipo: 'INFO' | 'ALERTA' | 'EXITO' | 'ERROR';
-  leida: boolean;
+  leido: boolean;
   fecha: string;
 }
 
@@ -151,4 +152,17 @@ export interface AuthCredentials {
 export interface AuthSession {
   usuario: Usuario;
   token: string;
+}
+
+export interface PerfilUsuario {
+  id_usuario: string;
+  documento_id: string;
+  nombres: string;
+  apellidos: string;
+  email: string;
+  telefono?: string | null;
+  direccion?: string | null;
+  avatar_url?: string | null;
+  nombre_rol: string;
+  id_institucion?: string | null;
 }

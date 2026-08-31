@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuthStore } from '@/store/authStore';
+import { authService } from '@/services/authService';
 
 const schema = z.object({
   correo: z.string().min(1, 'Ingresá tu correo institucional.').email('Correo inválido.'),
@@ -24,14 +25,26 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    if (!localStorage.getItem('mie-welcome-complete')) navigate('/', { replace: true });
+  }, [navigate]);
+
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { correo: '', password: '', recordarme: true },
   });
+
+  const recuperarPassword = async () => {
+    const correo = getValues('correo');
+    if (!correo) { toast.error('Escribí primero tu correo institucional.'); return; }
+    try { await authService.recuperarPassword(correo); toast.success('Si el correo existe, se registró la solicitud de recuperación.'); }
+    catch { toast.error('No se pudo registrar la solicitud de recuperación.'); }
+  };
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -118,7 +131,7 @@ export function LoginPage() {
                   />
                   Recordarme
                 </label>
-                <button type="button" className="font-medium text-primary-600 transition-colors hover:text-primary-700 dark:hover:text-primary-400">
+                <button type="button" onClick={recuperarPassword} className="font-medium text-primary-600 transition-colors hover:text-primary-700 dark:hover:text-primary-400">
                   ¿Olvidaste tu contraseña?
                 </button>
               </div>

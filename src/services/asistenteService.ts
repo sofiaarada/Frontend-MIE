@@ -43,7 +43,7 @@ async function cargarDatos(): Promise<DatosSistema> {
     dashboardService.obtenerKpis(),
     dashboardService.obtenerNotificaciones(),
   ]);
-  return { espacios, tickets, mantenimientos, inspecciones, kpi, notificaciones };
+  return { espacios, tickets, mantenimientos, inspecciones, kpi, notificaciones: notificaciones as Notificacion[] };
 }
 
 // ---------------------------------------------------------------------------
@@ -183,7 +183,7 @@ function responderResumen(datos: DatosSistema): RespuestaAsistente {
   return {
     tipo: 'resumen',
     kpi: datos.kpi,
-    alertasNoLeidas: datos.notificaciones.filter((n) => n.tipo === 'ALERTA' && !n.leida).length,
+    alertasNoLeidas: datos.notificaciones.filter((n) => n.tipo === 'ALERTA' && !n.leido).length,
   };
 }
 

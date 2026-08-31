@@ -1,83 +1,20 @@
 import type { Espacio, Paginado } from '@/types';
-import { delay, mockEspacios } from './mock/mockData';
+import { resourcesApi } from './api/resources';
 
-const USE_MOCK = true;
-
-
-const db: Espacio[] = [...mockEspacios];
-
-export interface FiltrosEspacios {
-  busqueda?: string;
-  estado?: Espacio['estado'] | 'TODOS';
-  page?: number;
-  pageSize?: number;
-}
-
+export interface FiltrosEspacios { busqueda?: string; page?: number; pageSize?: number; estado?: Espacio['estado'] | 'TODOS'; }
 export type EspacioInput = Omit<Espacio, 'id' | 'problemasActivos' | 'ultimaInspeccion'>;
+interface EspacioDB { id_piso: string; id_sede: string; numero_piso: number; bloque_seccion: string; descripcion_ubicacion?: string | null; }
+
+const mapEspacio = (db: EspacioDB): Espacio => ({
+  id: db.id_piso, codigo: `ESP-${db.id_piso}`, nombre: db.bloque_seccion, tipo: 'Espacio', sedeId: db.id_sede,
+  piso: String(db.numero_piso), areaM2: 0, capacidad: 0, estado: 'BUENO', fotoUrl: undefined, ultimaInspeccion: undefined, problemasActivos: 0,
+});
+const payload = (input: EspacioInput) => ({ id_sede: Number(input.sedeId), numero_piso: Number.parseInt(input.piso, 10) || 1, bloque_seccion: input.nombre, descripcion_ubicacion: input.tipo || null });
 
 export const espaciosService = {
-  async listar(filtros: FiltrosEspacios = {}): Promise<Paginado<Espacio>> {
-    if (USE_MOCK) {
-      await delay(400);
-      let data = [...db];
-      if (filtros.busqueda) {
-        const q = filtros.busqueda.toLowerCase();
-        data = data.filter((e) => e.nombre.toLowerCase().includes(q) || e.codigo.toLowerCase().includes(q));
-      }
-      if (filtros.estado && filtros.estado !== 'TODOS') {
-        data = data.filter((e) => e.estado === filtros.estado);
-      }
-      const page = filtros.page ?? 1;
-      const pageSize = filtros.pageSize ?? 8;
-      const start = (page - 1) * pageSize;
-      return {
-        data: data.slice(start, start + pageSize),
-        total: data.length,
-        page,
-        pageSize,
-      };
-    }
-
-    throw new Error('Backend no configurado');
-  },
-
-  async obtener(id: string): Promise<Espacio | undefined> {
-    if (USE_MOCK) {
-      await delay(300);
-      return db.find((e) => e.id === id);
-    }
-    throw new Error('Backend no configurado');
-  },
-
-  async crear(input: EspacioInput): Promise<Espacio> {
-    if (USE_MOCK) {
-      await delay(500);
-      const nuevo: Espacio = { ...input, id: `e${Date.now()}`, problemasActivos: 0 };
-      db.unshift(nuevo);
-      return nuevo;
-    }
-  
-    throw new Error('Backend no configurado');
-  },
-
-  async actualizar(id: string, input: EspacioInput): Promise<Espacio> {
-    if (USE_MOCK) {
-      await delay(500);
-      const index = db.findIndex((e) => e.id === id);
-      if (index === -1) throw new Error('Espacio no encontrado.');
-      db[index] = { ...db[index], ...input };
-      return db[index];
-    }
-    throw new Error('Backend no configurado');
-  },
-
-  async eliminar(id: string): Promise<void> {
-    if (USE_MOCK) {
-      await delay(400);
-      const index = db.findIndex((e) => e.id === id);
-      if (index !== -1) db.splice(index, 1);
-      return;
-    }
-    throw new Error('Backend no configurado');
-  },
+  async listar(filtros: FiltrosEspacios = {}): Promise<Paginado<Espacio>> { const result = await resourcesApi.listar<EspacioDB>('pisos_espacios', { page: filtros.page, pageSize: filtros.pageSize, busqueda: filtros.busqueda }); return { ...result, data: result.data.map(mapEspacio) }; },
+  async obtener(id: string): Promise<Espacio | undefined> { try { return mapEspacio(await resourcesApi.obtener<EspacioDB>('pisos_espacios', id)); } catch { return undefined; } },
+  async crear(input: EspacioInput): Promise<Espacio> { return mapEspacio(await resourcesApi.crear<EspacioDB, ReturnType<typeof payload>>('pisos_espacios', payload(input))); },
+  async actualizar(id: string, input: EspacioInput): Promise<Espacio> { return mapEspacio(await resourcesApi.actualizar<EspacioDB, ReturnType<typeof payload>>('pisos_espacios', id, payload(input))); },
+  async eliminar(id: string): Promise<void> { await resourcesApi.eliminar('pisos_espacios', id); },
 };

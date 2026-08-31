@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -12,6 +13,7 @@ import { EvaluacionFormModal } from './EvaluacionFormModal';
 
 export function EvaluacionesPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [modalAbierto, setModalAbierto] = useState(false);
   const [inspeccionSeleccionada, setInspeccionSeleccionada] = useState<Inspeccion | null>(null);
   const [soloLectura, setSoloLectura] = useState(false);
@@ -64,7 +66,7 @@ export function EvaluacionesPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {inspecciones.map((i) => (
-            <EvaluacionCard key={i.id} inspeccion={i} onVer={abrirVer} />
+            <EvaluacionCard key={i.id} inspeccion={i} onVer={abrirVer} onGenerarOT={() => navigate('/tickets')} />
           ))}
         </div>
       )}

@@ -20,4 +20,5 @@ export const navItems: NavItem[] = [
   { label: 'Evaluaciones', path: '/evaluaciones', icon: ClipboardCheck },
   { label: 'Reportes', path: '/reportes', icon: BarChart3 },
   { label: 'Usuarios', path: '/usuarios', icon: Users },
+  { label: 'Mi perfil', path: '/perfil', icon: Users },
 ];

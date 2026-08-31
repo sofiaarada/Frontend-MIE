@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LayoutGrid, List, Search, Plus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -27,6 +28,7 @@ const filtrosEstado: { value: VistaEstado; label: string }[] = [
 
 export function EspaciosPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [vista, setVista] = useState<'cards' | 'tabla'>('cards');
   const [estado, setEstado] = useState<VistaEstado>('TODOS');
   const [busqueda, setBusqueda] = useState('');
@@ -134,7 +136,7 @@ export function EspaciosPage() {
       ) : vista === 'cards' ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {data?.data.map((e) => (
-            <EspacioCard key={e.id} espacio={e} onVer={abrirVer} onEditar={abrirEditar} />
+            <EspacioCard key={e.id} espacio={e} onVer={abrirVer} onEditar={abrirEditar} onEvaluar={() => navigate('/evaluaciones')} />
           ))}
         </div>
       ) : (

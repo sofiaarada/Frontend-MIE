@@ -4,7 +4,7 @@ import { Search, Plus, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Activo } from '@/types';
 import { activosService, type ActivoInput } from '@/services/activosService';
-import { categoriasActivo } from '@/services/mock/mockData';
+import { categoriasActivo } from '@/constants/formOptions';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';

@@ -60,6 +60,7 @@ const mapaTicket: Record<EstadoTicket, { tono: BadgeTono; label: string }> = {
   PENDIENTE: { tono: 'neutral', label: 'Pendiente' },
   EN_PROCESO: { tono: 'primary', label: 'En proceso' },
   FINALIZADO: { tono: 'success', label: 'Finalizado' },
+  CANCELADO: { tono: 'neutral', label: 'Cancelado' },
 };
 
 export function BadgeTicket({ estado }: { estado: EstadoTicket }) {

@@ -7,7 +7,8 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
-import { mockEspacios } from '@/services/mock/mockData';
+import { prioridadesTicket, estadosTicket } from '@/constants/formOptions';
+import { useEspacios } from '@/hooks/useEspacios';
 
 const schema = z.object({
   titulo: z.string().min(3, 'Ingresá un título.'),
@@ -16,7 +17,7 @@ const schema = z.object({
   responsable: z.string().min(2, 'Ingresá el responsable.'),
   creadoPor: z.string().min(2, 'Ingresá quién lo solicita.'),
   prioridad: z.enum(['BAJA', 'MEDIA', 'ALTA', 'URGENTE']),
-  estado: z.enum(['PENDIENTE', 'EN_PROCESO', 'FINALIZADO']),
+  estado: z.enum(['PENDIENTE', 'EN_PROCESO', 'FINALIZADO', 'CANCELADO']),
   fechaVencimiento: z.string().min(1, 'Ingresá la fecha límite.'),
 });
 
@@ -30,7 +31,7 @@ interface TicketFormModalProps {
 }
 
 const valoresVacios: TicketFormValues = {
-  titulo: '', descripcion: '', espacioNombre: mockEspacios[0]?.nombre ?? '',
+  titulo: '', descripcion: '', espacioNombre: '',
   responsable: '', creadoPor: '', prioridad: 'MEDIA', estado: 'PENDIENTE',
   fechaVencimiento: new Date().toISOString().slice(0, 10),
 };
@@ -41,6 +42,7 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
     resolver: zodResolver(schema),
     defaultValues: valoresVacios,
   });
+  const { data: espacios = [], isLoading } = useEspacios();
 
   useEffect(() => {
     if (abierto) reset(ticket ? { ...ticket } : valoresVacios);
@@ -86,8 +88,9 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Select label="Espacio" error={errors.espacioNombre?.message} {...register('espacioNombre')}>
-            {mockEspacios.map((e) => <option key={e.id} value={e.nombre}>{e.nombre}</option>)}
+          <Select label="Espacio" error={errors.espacioNombre?.message} {...register('espacioNombre')} disabled={isLoading}>
+            <option value="">Seleccioná un espacio</option>
+            {espacios.map((e) => <option key={e.id} value={e.nombre}>{e.nombre}</option>)}
           </Select>
           <Input label="Responsable" placeholder="Carlos Rivas" error={errors.responsable?.message} {...register('responsable')} />
         </div>
@@ -103,10 +106,7 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
             name="prioridad"
             render={({ field }) => (
               <Select label="Prioridad" value={field.value} onChange={field.onChange}>
-                <option value="BAJA">Baja</option>
-                <option value="MEDIA">Media</option>
-                <option value="ALTA">Alta</option>
-                <option value="URGENTE">Urgente</option>
+                {prioridadesTicket.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
               </Select>
             )}
           />
@@ -115,9 +115,7 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
             name="estado"
             render={({ field }) => (
               <Select label="Estado" value={field.value} onChange={field.onChange}>
-                <option value="PENDIENTE">Pendiente</option>
-                <option value="EN_PROCESO">En proceso</option>
-                <option value="FINALIZADO">Finalizado</option>
+                {estadosTicket.map((e) => <option key={e.value} value={e.value}>{e.label}</option>)}
               </Select>
             )}
           />

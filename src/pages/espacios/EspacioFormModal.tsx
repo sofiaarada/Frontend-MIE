@@ -8,8 +8,11 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
-import { tiposEspacio, mockSedes } from '@/services/mock/mockData';
+import { tiposEspacio } from '@/constants/formOptions';
 import { cn } from '@/utils/cn';
+import { useSedes } from '@/hooks/useSedes';
+import { uploadService } from '@/services/uploadService';
+import { toast } from 'sonner';
 
 const schema = z.object({
   nombre: z.string().min(2, 'Ingresá un nombre.'),
@@ -34,7 +37,7 @@ interface EspacioFormModalProps {
 }
 
 const valoresVacios: EspacioFormValues = {
-  nombre: '', codigo: '', tipo: '', sedeId: mockSedes[0]?.id ?? '', piso: '',
+  nombre: '', codigo: '', tipo: '', sedeId: '', piso: '',
   areaM2: 0, capacidad: 0, estado: 'BUENO', fotoUrl: '',
 };
 
@@ -42,6 +45,7 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
   const [guardando, setGuardando] = useState(false);
   const [arrastrando, setArrastrando] = useState(false);
   const inputFileRef = useRef<HTMLInputElement>(null);
+  const { data: sedes = [], isLoading: sedesLoading } = useSedes();
 
   const { register, handleSubmit, control, reset, watch, setValue, formState: { errors } } = useForm<EspacioFormValues>({
     resolver: zodResolver(schema),
@@ -56,10 +60,14 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
     }
   }, [abierto, espacio, reset]);
 
-  const procesarArchivo = (file?: File) => {
-    if (!file || !file.type.startsWith('image/')) return;
-    const url = URL.createObjectURL(file);
-    setValue('fotoUrl', url, { shouldValidate: true });
+  const procesarArchivo = async (file?: File) => {
+    if (!file) return;
+    try {
+      const url = await uploadService.subirImagen(file);
+      setValue('fotoUrl', url, { shouldValidate: true });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo subir la imagen.');
+    }
   };
 
   const onSubmit = async (valores: EspacioFormValues) => {
@@ -113,7 +121,7 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
               {!soloLectura && (
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); setValue('fotoUrl', ''); }}
+                  onClick={async (e) => { e.stopPropagation(); try { await uploadService.borrarImagen(fotoUrl); } catch { /* Puede ser una imagen heredada. */ } setValue('fotoUrl', ''); }}
                   className="focus-ring absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-surface-950/70 text-white hover:bg-surface-950"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -145,8 +153,9 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
             <option value="">Seleccioná un tipo</option>
             {tiposEspacio.map((t) => <option key={t} value={t}>{t}</option>)}
           </Select>
-          <Select label="Sede" error={errors.sedeId?.message} {...register('sedeId')}>
-            {mockSedes.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+          <Select label="Sede" error={errors.sedeId?.message} {...register('sedeId')} disabled={sedesLoading}>
+            <option value="">Seleccioná una sede</option>
+            {sedes.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
           </Select>
         </div>
 

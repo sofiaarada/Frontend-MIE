@@ -8,6 +8,7 @@ import { cn } from '@/utils/cn';
 interface EvaluacionCardProps {
   inspeccion: Inspeccion;
   onVer: (inspeccion: Inspeccion) => void;
+  onGenerarOT: (inspeccion: Inspeccion) => void;
 }
 
 const colorBarra = {
@@ -17,7 +18,7 @@ const colorBarra = {
   CRITICO: 'bg-danger-500',
 } as const;
 
-export function EvaluacionCard({ inspeccion, onVer }: EvaluacionCardProps) {
+export function EvaluacionCard({ inspeccion, onVer, onGenerarOT }: EvaluacionCardProps) {
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between gap-2">
@@ -57,7 +58,7 @@ export function EvaluacionCard({ inspeccion, onVer }: EvaluacionCardProps) {
         >
           <Eye className="h-3.5 w-3.5" /> Ver detalle
         </button>
-        <button className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium text-surface-500 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-surface-800">
+        <button onClick={() => onGenerarOT(inspeccion)} className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium text-surface-500 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-surface-800">
           <Wrench className="h-3.5 w-3.5" /> Generar OT
         </button>
       </div>

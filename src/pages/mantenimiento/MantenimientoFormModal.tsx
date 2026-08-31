@@ -15,7 +15,7 @@ const schema = z.object({
   materiales: z.array(z.string()),
   costo: z.coerce.number().min(0, 'El costo no puede ser negativo.'),
   fechaProgramada: z.string().min(1, 'Ingresá la fecha programada.'),
-  estado: z.enum(['PENDIENTE', 'EN_PROCESO', 'FINALIZADO']),
+  estado: z.enum(['PENDIENTE', 'EN_PROCESO', 'FINALIZADO', 'CANCELADO']),
 });
 
 export type MantenimientoFormValues = z.infer<typeof schema>;
@@ -131,6 +131,7 @@ export function MantenimientoFormModal({ abierto, onCerrar, onGuardar, item }: M
                 <option value="PENDIENTE">Pendiente</option>
                 <option value="EN_PROCESO">En proceso</option>
                 <option value="FINALIZADO">Finalizado</option>
+                <option value="CANCELADO">Cancelado</option>
               </Select>
             )}
           />

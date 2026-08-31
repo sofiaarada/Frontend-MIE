@@ -7,7 +7,8 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
-import { categoriasActivo, mockEspacios } from '@/services/mock/mockData';
+import { categoriasActivo } from '@/constants/formOptions';
+import { useEspacios } from '@/hooks/useEspacios';
 
 const schema = z.object({
   nombre: z.string().min(2, 'Ingresá un nombre.'),
@@ -31,7 +32,7 @@ interface ActivoFormModalProps {
 }
 
 const valoresVacios: ActivoFormValues = {
-  nombre: '', codigo: '', categoria: '', espacioId: mockEspacios[0]?.id ?? '',
+  nombre: '', codigo: '', categoria: '', espacioId: '',
   cantidad: 1, responsable: '', valor: 0, estado: 'BUENO',
   fechaAdquisicion: new Date().toISOString().slice(0, 10),
 };
@@ -42,6 +43,7 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
     resolver: zodResolver(schema),
     defaultValues: valoresVacios,
   });
+  const { data: espacios = [], isLoading } = useEspacios();
 
   useEffect(() => {
     if (abierto) reset(activo ? { ...activo } : valoresVacios);
@@ -83,8 +85,9 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
             <option value="">Seleccioná una categoría</option>
             {categoriasActivo.map((c) => <option key={c} value={c}>{c}</option>)}
           </Select>
-          <Select label="Espacio" error={errors.espacioId?.message} {...register('espacioId')}>
-            {mockEspacios.map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+          <Select label="Espacio" error={errors.espacioId?.message} {...register('espacioId')} disabled={isLoading}>
+            <option value="">Seleccioná un espacio</option>
+            {espacios.map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}
           </Select>
         </div>
 

@@ -1,23 +1,15 @@
-import { Pencil, Trash2, Users } from 'lucide-react';
-import type { Usuario, Role } from '@/types';
+import { Pencil, Ban, Users } from 'lucide-react';
+import type { UsuarioAdmin } from '@/services/usuariosService';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatearFecha } from '@/utils/format';
 
 interface UsuariosTableProps {
-  usuarios: Usuario[];
-  onEditar: (usuario: Usuario) => void;
-  onEliminar: (usuario: Usuario) => void;
+  usuarios: UsuarioAdmin[];
+  onEditar: (usuario: UsuarioAdmin) => void;
+  onEliminar: (usuario: UsuarioAdmin) => void;
 }
-
-const rolLabel: Record<Role, string> = {
-  ADMIN: 'Administrador', COORDINADOR: 'Coordinador', INSPECTOR: 'Inspector', MANTENIMIENTO: 'Mantenimiento',
-};
-
-const rolTono: Record<Role, 'primary' | 'success' | 'warning' | 'neutral'> = {
-  ADMIN: 'primary', COORDINADOR: 'success', INSPECTOR: 'warning', MANTENIMIENTO: 'neutral',
-};
 
 export function UsuariosTable({ usuarios, onEditar, onEliminar }: UsuariosTableProps) {
   if (usuarios.length === 0) {
@@ -49,7 +41,7 @@ export function UsuariosTable({ usuarios, onEditar, onEliminar }: UsuariosTableP
                   </div>
                 </div>
               </td>
-              <td className="px-3 py-3"><Badge tono={rolTono[u.rol]}>{rolLabel[u.rol]}</Badge></td>
+              <td className="px-3 py-3"><Badge tono="neutral">{u.rol}</Badge></td>
               <td className="px-3 py-3 text-surface-500 dark:text-surface-400">{u.sede}</td>
               <td className="px-3 py-3">
                 <Badge tono={u.activo ? 'success' : 'danger'}>{u.activo ? 'Activo' : 'Inactivo'}</Badge>
@@ -60,8 +52,8 @@ export function UsuariosTable({ usuarios, onEditar, onEliminar }: UsuariosTableP
                   <button onClick={() => onEditar(u)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800">
                     <Pencil className="h-4 w-4" />
                   </button>
-                  <button onClick={() => onEliminar(u)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-danger-50 hover:text-danger-500 dark:hover:bg-danger-500/10">
-                    <Trash2 className="h-4 w-4" />
+                  <button onClick={() => onEliminar(u)} aria-label={u.activo ? 'Bloquear usuario' : 'Desbloquear usuario'} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-danger-50 hover:text-danger-500 dark:hover:bg-danger-500/10">
+                    <Ban className="h-4 w-4" />
                   </button>
                 </div>
               </td>

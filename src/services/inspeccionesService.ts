@@ -1,9 +1,5 @@
 import type { Inspeccion, ChecklistItem } from '@/types';
-import { delay, mockInspecciones } from './mock/mockData';
-
-const USE_MOCK = true;
-
-const db: Inspeccion[] = [...mockInspecciones];
+import { resourcesApi } from './api/resources';
 
 export type InspeccionInput = {
   espacioId: string;
@@ -15,6 +11,37 @@ export type InspeccionInput = {
   evidencias: string[];
 };
 
+interface InspeccionDB {
+  id_inspeccion: string;
+  id_espacio: string;
+  espacio_nombre?: string;
+  inspector: string;
+  fecha: string;
+  puntaje_global: number;
+  items_buenos: number;
+  observaciones: number;
+  estado: Inspeccion['estado'];
+  checklist: ChecklistItem[];
+  notas?: string;
+  evidencias: string[];
+}
+
+function mapInspeccion(db: InspeccionDB): Inspeccion {
+  return {
+    id: db.id_inspeccion,
+    espacioId: db.id_espacio,
+    espacioNombre: db.espacio_nombre ?? '',
+    inspector: db.inspector,
+    fecha: db.fecha.split('T')[0],
+    puntajeGlobal: db.puntaje_global,
+    itemsBuenos: db.items_buenos,
+    observaciones: db.observaciones,
+    estado: db.estado,
+    checklist: db.checklist,
+    notas: db.notas,
+    evidencias: db.evidencias,
+  };
+}
 
 const calcularResultado = (checklist: ChecklistItem[]) => {
   const total = checklist.length || 1;
@@ -28,43 +55,47 @@ const calcularResultado = (checklist: ChecklistItem[]) => {
 
 export const inspeccionesService = {
   async listar(): Promise<Inspeccion[]> {
-    if (USE_MOCK) {
-      await delay(400);
-      return [...db].sort((a, b) => b.fecha.localeCompare(a.fecha));
-    }
-    
-    throw new Error('Backend no configurado');
+    const result = await resourcesApi.listar<InspeccionDB>('inspecciones', { pageSize: 1000 });
+    return result.data.map(mapInspeccion).sort((a, b) => b.fecha.localeCompare(a.fecha));
   },
 
   async crear(input: InspeccionInput): Promise<Inspeccion> {
-    if (USE_MOCK) {
-      await delay(500);
-      const nueva: Inspeccion = { ...input, id: `i${Date.now()}`, ...calcularResultado(input.checklist) };
-      db.unshift(nueva);
-      return nueva;
-    }
-    
-    throw new Error('Backend no configurado');
+    const resultado = calcularResultado(input.checklist);
+    const dbInput = {
+      id_espacio: input.espacioId,
+      inspector: input.inspector,
+      fecha: input.fecha,
+      puntaje_global: resultado.puntajeGlobal,
+      items_buenos: resultado.itemsBuenos,
+      observaciones: resultado.observaciones,
+      estado: resultado.estado,
+      checklist: input.checklist,
+      notas: input.notas,
+      evidencias: input.evidencias,
+    };
+    const created = await resourcesApi.crear<InspeccionDB, typeof dbInput>('inspecciones', dbInput);
+    return mapInspeccion(created);
   },
 
   async actualizar(id: string, input: InspeccionInput): Promise<Inspeccion> {
-    if (USE_MOCK) {
-      await delay(500);
-      const index = db.findIndex((i) => i.id === id);
-      if (index === -1) throw new Error('Evaluación no encontrada.');
-      db[index] = { ...db[index], ...input, ...calcularResultado(input.checklist) };
-      return db[index];
-    }
-    throw new Error('Backend no configurado');
+    const resultado = calcularResultado(input.checklist);
+    const dbInput = {
+      id_espacio: input.espacioId,
+      inspector: input.inspector,
+      fecha: input.fecha,
+      puntaje_global: resultado.puntajeGlobal,
+      items_buenos: resultado.itemsBuenos,
+      observaciones: resultado.observaciones,
+      estado: resultado.estado,
+      checklist: input.checklist,
+      notas: input.notas,
+      evidencias: input.evidencias,
+    };
+    const updated = await resourcesApi.actualizar<InspeccionDB, typeof dbInput>('inspecciones', id, dbInput);
+    return mapInspeccion(updated);
   },
 
   async eliminar(id: string): Promise<void> {
-    if (USE_MOCK) {
-      await delay(400);
-      const index = db.findIndex((i) => i.id === id);
-      if (index !== -1) db.splice(index, 1);
-      return;
-    }
-    throw new Error('Backend no configurado');
+    await resourcesApi.eliminar('inspecciones', id);
   },
 };

@@ -9,8 +9,11 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
-import { mockEspacios, checklistBase } from '@/services/mock/mockData';
+import { checklistBase } from '@/constants/formOptions';
 import { cn } from '@/utils/cn';
+import { useEspacios } from '@/hooks/useEspacios';
+import { uploadService } from '@/services/uploadService';
+import { toast } from 'sonner';
 
 const schema = z.object({
   espacioId: z.string().min(1, 'Seleccioná un espacio.'),
@@ -33,7 +36,7 @@ const checklistInicial = (): ChecklistItem[] =>
   checklistBase.map((texto, i) => ({ id: `chk-${i}`, texto, cumple: true }));
 
 const valoresVacios: FormValues = {
-  espacioId: mockEspacios[0]?.id ?? '', inspector: '',
+  espacioId: '', inspector: '',
   fecha: new Date().toISOString().slice(0, 10), notas: '',
 };
 
@@ -44,6 +47,7 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
   const [evidencias, setEvidencias] = useState<string[]>([]);
   const [arrastrando, setArrastrando] = useState(false);
   const inputFileRef = useRef<HTMLInputElement>(null);
+  const { data: espacios = [], isLoading } = useEspacios();
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -78,17 +82,21 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
 
   const quitarItem = (id: string) => setChecklist((prev) => prev.filter((c) => c.id !== id));
 
-  const procesarArchivos = (files?: FileList | null) => {
+  const procesarArchivos = async (files?: FileList | null) => {
     if (!files) return;
-    const urls = Array.from(files).filter((f) => f.type.startsWith('image/')).map((f) => URL.createObjectURL(f));
-    setEvidencias((prev) => [...prev, ...urls]);
+    try {
+      const urls = await Promise.all(Array.from(files).map((file) => uploadService.subirImagen(file)));
+      setEvidencias((prev) => [...prev, ...urls]);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudieron subir las evidencias.');
+    }
   };
 
   const buenos = checklist.filter((c) => c.cumple).length;
   const puntaje = checklist.length ? Math.round((buenos / checklist.length) * 100) : 0;
 
   const onSubmit = async (valores: FormValues) => {
-    const espacio = mockEspacios.find((e) => e.id === valores.espacioId);
+    const espacio = espacios.find((e) => e.id === valores.espacioId);
     setGuardando(true);
     try {
       await onGuardar({ ...valores, espacioNombre: espacio?.nombre ?? '', checklist, evidencias });
@@ -118,8 +126,9 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
     >
       <fieldset disabled={soloLectura} className="space-y-5">
         <div className="grid grid-cols-3 gap-4">
-          <Select label="Espacio" error={errors.espacioId?.message} {...register('espacioId')}>
-            {mockEspacios.map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+          <Select label="Espacio" error={errors.espacioId?.message} {...register('espacioId')} disabled={isLoading}>
+            <option value="">Seleccioná un espacio</option>
+            {espacios.map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}
           </Select>
           <Input label="Inspector" placeholder="Patricia Núñez" error={errors.inspector?.message} {...register('inspector')} />
           <Input label="Fecha" type="date" error={errors.fecha?.message} {...register('fecha')} />
@@ -203,7 +212,7 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
                 {!soloLectura && (
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); setEvidencias((prev) => prev.filter((_, idx) => idx !== i)); }}
+                    onClick={async (e) => { e.stopPropagation(); try { await uploadService.borrarImagen(url); } catch { /* Puede ser una imagen anterior no gestionada por esta API. */ } setEvidencias((prev) => prev.filter((_, idx) => idx !== i)); }}
                     className="absolute inset-0 flex items-center justify-center bg-surface-950/60 text-white opacity-0 group-hover:opacity-100"
                   >
                     <X className="h-4 w-4" />

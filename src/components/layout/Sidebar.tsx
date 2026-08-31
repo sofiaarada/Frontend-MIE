@@ -4,9 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { navItems } from '@/routes/navigation';
 import { useUiStore } from '@/store/uiStore';
 import { cn } from '@/utils/cn';
+import { useAuthStore } from '@/store/authStore';
 
 export function Sidebar() {
   const { sidebarColapsado, alternarSidebar, sidebarMobileAbierto, setSidebarMobileAbierto } = useUiStore();
+  const rol = useAuthStore((s) => s.session?.usuario.rol);
 
   const contenido = (
     <div className="flex h-full flex-col">
@@ -30,7 +32,7 @@ export function Sidebar() {
       </div>
 
       <nav data-tour="sidebar" className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
-        {navItems.map((item) => (
+        {navItems.filter((item) => item.path !== '/usuarios' || rol === 'Administrador').map((item) => (
           <NavLink
             key={item.path}
             to={item.path}

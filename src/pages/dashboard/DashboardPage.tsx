@@ -135,7 +135,7 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-1 pt-2">
             {notificaciones.slice(0, 4).map((n) => {
-              const Icono = iconoAlerta[n.tipo];
+              const Icono = iconoAlerta[n.tipo as keyof typeof iconoAlerta];
               return (
                 <div key={n.id} className="flex items-start gap-3 rounded-lg px-2 py-2.5 hover:bg-surface-50 dark:hover:bg-surface-800/60">
                   <Icono className="mt-0.5 h-4 w-4 shrink-0 text-warning-500" />

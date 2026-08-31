@@ -9,6 +9,7 @@ interface AuthState {
   error: string | null;
   iniciarSesion: (correo: string, password: string, recordarme?: boolean) => Promise<void>;
   cerrarSesion: () => void;
+  actualizarUsuario: (usuario: AuthSession['usuario']) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -29,6 +30,7 @@ export const useAuthStore = create<AuthState>()(
         }
       },
       cerrarSesion: () => set({ session: null }),
+      actualizarUsuario: (usuario) => set((state) => state.session ? { session: { ...state.session, usuario } } : state),
     }),
     {
       name: 'mie-auth',

@@ -65,7 +65,7 @@ export function Topbar() {
             onClick={() => setMenuAbierto((a) => !a)}
             className="focus-ring ml-1 flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 hover:bg-surface-100 dark:hover:bg-surface-800"
           >
-            <Avatar nombre={session?.usuario.nombre ?? 'Usuario'} size="sm" />
+            <Avatar nombre={session?.usuario.nombre ?? 'Usuario'} src={session?.usuario.avatarUrl} size="sm" />
             <div className="hidden text-left leading-tight md:block">
               <p className="text-xs font-semibold text-surface-800 dark:text-surface-100">{session?.usuario.nombre}</p>
               <p className="text-[11px] text-surface-400">{session?.usuario.rol.toLowerCase()}</p>
@@ -82,7 +82,7 @@ export function Topbar() {
                 transition={{ duration: 0.15 }}
                 className="absolute right-0 z-50 mt-2 w-52 overflow-hidden rounded-xl border border-surface-200 bg-white p-1.5 shadow-elevated dark:border-surface-800 dark:bg-surface-900"
               >
-                <button className="focus-ring flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-surface-600 hover:bg-surface-100 dark:text-surface-300 dark:hover:bg-surface-800">
+                <button onClick={() => { setMenuAbierto(false); navigate('/perfil'); }} className="focus-ring flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-surface-600 hover:bg-surface-100 dark:text-surface-300 dark:hover:bg-surface-800">
                   <User className="h-4 w-4" /> Mi perfil
                 </button>
                 <button

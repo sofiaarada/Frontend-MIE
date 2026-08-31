@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Search, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import type { Usuario, Role } from '@/types';
-import { usuariosService, type UsuarioInput } from '@/services/usuariosService';
+import { usuariosService, type UsuarioInput, type UsuarioAdmin } from '@/services/usuariosService';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
@@ -14,7 +13,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { UsuariosTable } from './UsuariosTable';
 import { UsuarioFormModal, type UsuarioFormValues } from './UsuarioFormModal';
 
-type FiltroRol = 'TODOS' | Role;
+type FiltroRol = 'TODOS' | number;
 
 export function UsuariosPage() {
   const queryClient = useQueryClient();
@@ -23,19 +22,20 @@ export function UsuariosPage() {
   const [page, setPage] = useState(1);
 
   const [modalAbierto, setModalAbierto] = useState(false);
-  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<Usuario | null>(null);
-  const [usuarioAEliminar, setUsuarioAEliminar] = useState<Usuario | null>(null);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<UsuarioAdmin | null>(null);
+  const [usuarioABloquear, setUsuarioABloquear] = useState<UsuarioAdmin | null>(null);
   const [eliminando, setEliminando] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['usuarios', { busqueda, rol, page }],
-    queryFn: () => usuariosService.listar({ busqueda, rol, page, pageSize: 8 }),
+    queryFn: () => usuariosService.listar({ busqueda, id_rol: rol === 'TODOS' ? undefined : rol, page, pageSize: 8 }),
   });
+  const { data: roles = [] } = useQuery({ queryKey: ['roles-sistema'], queryFn: usuariosService.roles });
 
   const invalidar = () => queryClient.invalidateQueries({ queryKey: ['usuarios'] });
 
   const abrirNuevo = () => { setUsuarioSeleccionado(null); setModalAbierto(true); };
-  const abrirEditar = (u: Usuario) => { setUsuarioSeleccionado(u); setModalAbierto(true); };
+  const abrirEditar = (u: UsuarioAdmin) => { setUsuarioSeleccionado(u); setModalAbierto(true); };
 
   const guardar = async (valores: UsuarioFormValues) => {
     const input: UsuarioInput = valores;
@@ -54,13 +54,13 @@ export function UsuariosPage() {
   };
 
   const confirmarEliminar = async () => {
-    if (!usuarioAEliminar) return;
+    if (!usuarioABloquear) return;
     setEliminando(true);
     try {
-      await usuariosService.eliminar(usuarioAEliminar.id);
-      toast.success('Usuario eliminado.');
+      await usuariosService.cambiarEstado(usuarioABloquear.id, usuarioABloquear.activo ? 'Inactivo' : 'Activo');
+      toast.success(usuarioABloquear.activo ? 'Usuario bloqueado.' : 'Usuario desbloqueado.');
       invalidar();
-      setUsuarioAEliminar(null);
+      setUsuarioABloquear(null);
     } catch {
       toast.error('No se pudo eliminar el usuario.');
     } finally {
@@ -94,10 +94,7 @@ export function UsuariosPage() {
         <div className="w-48">
           <Select value={rol} onChange={(e) => { setRol(e.target.value as FiltroRol); setPage(1); }}>
             <option value="TODOS">Todos los roles</option>
-            <option value="ADMIN">Administrador</option>
-            <option value="COORDINADOR">Coordinador</option>
-            <option value="INSPECTOR">Inspector</option>
-            <option value="MANTENIMIENTO">Mantenimiento</option>
+            {roles.map((r) => <option key={r.id_rol} value={r.id_rol}>{r.nombre_rol}</option>)}
           </Select>
         </div>
       </div>
@@ -108,7 +105,7 @@ export function UsuariosPage() {
             {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
           </div>
         ) : (
-          <UsuariosTable usuarios={data?.data ?? []} onEditar={abrirEditar} onEliminar={setUsuarioAEliminar} />
+          <UsuariosTable usuarios={data?.data ?? []} onEditar={abrirEditar} onEliminar={setUsuarioABloquear} />
         )}
       </Card>
 
@@ -121,14 +118,15 @@ export function UsuariosPage() {
         onCerrar={() => setModalAbierto(false)}
         onGuardar={guardar}
         usuario={usuarioSeleccionado}
+        roles={roles}
       />
 
       <ConfirmDialog
-        abierto={!!usuarioAEliminar}
-        onCerrar={() => setUsuarioAEliminar(null)}
+        abierto={!!usuarioABloquear}
+        onCerrar={() => setUsuarioABloquear(null)}
         onConfirmar={confirmarEliminar}
-        titulo="Eliminar usuario"
-        descripcion={`¿Seguro que querés eliminar a "${usuarioAEliminar?.nombre}"? Esta acción no se puede deshacer.`}
+        titulo={usuarioABloquear?.activo ? 'Bloquear usuario' : 'Desbloquear usuario'}
+        descripcion={`¿Querés ${usuarioABloquear?.activo ? 'bloquear' : 'desbloquear'} a "${usuarioABloquear?.nombre}"? Se conserva su historial.`}
         cargando={eliminando}
       />
     </div>
