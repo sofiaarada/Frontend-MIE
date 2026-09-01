@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { LayoutGrid, List, Search, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Ticket, EstadoTicket } from '@/types';
-import { ticketsService, type TicketInput } from '@/services/ticketsService';
+import { ticketsService } from '@/services/ticketsService';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';

@@ -12,7 +12,7 @@ export const uploadService = {
     if (!file.type.startsWith('image/')) throw new Error('Seleccioná un archivo de imagen.');
     if (file.size > 5 * 1024 * 1024) throw new Error('La imagen no puede superar 5 MB.');
     const { data } = await apiClient.post<{ url: string }>('/api/uploads', { dataUrl: await toDataUrl(file) });
-    return new URL(data.url, apiClient.defaults.baseURL).toString();
+    return data.url;
   },
   async borrarImagen(url: string): Promise<void> {
     const name = url.split('/').pop();

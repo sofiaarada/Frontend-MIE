@@ -183,7 +183,7 @@ function responderResumen(datos: DatosSistema): RespuestaAsistente {
   return {
     tipo: 'resumen',
     kpi: datos.kpi,
-    alertasNoLeidas: datos.notificaciones.filter((n) => n.tipo === 'ALERTA' && !n.leido).length,
+    alertasNoLeidas: datos.notificaciones.filter((n) => n.tipo === 'Critico' && !n.leido).length,
   };
 }
 

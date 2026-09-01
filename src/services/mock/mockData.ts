@@ -103,10 +103,10 @@ export const mockInspecciones: Inspeccion[] = [
 ];
 
 export const mockNotificaciones: Notificacion[] = [
-  { id: 'n1', titulo: 'Fuga de agua detectada', descripcion: 'Baños PB requiere atención inmediata.', tipo: 'ALERTA', leido: false, fecha: '2025-07-21T08:10:00' },
-  { id: 'n2', titulo: '5 luminarias fuera de servicio', descripcion: 'Aula 102.', tipo: 'ALERTA', leido: false, fecha: '2025-07-21T07:40:00' },
-  { id: 'n3', titulo: 'Inspección programada', descripcion: 'Lab. Ciencias, mañana 08:00.', tipo: 'INFO', leido: false, fecha: '2025-07-20T18:00:00' },
-  { id: 'n4', titulo: 'Stock crítico de insumos de limpieza', descripcion: 'Menos del 30% disponible.', tipo: 'ALERTA', leido: true, fecha: '2025-07-20T09:15:00' },
+  { id: 'n1', titulo: 'Fuga de agua detectada', descripcion: 'Baños PB requiere atención inmediata.', tipo: 'Critico', leido: false, fecha: '2025-07-21T08:10:00' },
+  { id: 'n2', titulo: '5 luminarias fuera de servicio', descripcion: 'Aula 102.', tipo: 'Advertencia', leido: false, fecha: '2025-07-21T07:40:00' },
+  { id: 'n3', titulo: 'Inspección programada', descripcion: 'Lab. Ciencias, mañana 08:00.', tipo: 'Info', leido: false, fecha: '2025-07-20T18:00:00' },
+  { id: 'n4', titulo: 'Stock crítico de insumos de limpieza', descripcion: 'Menos del 30% disponible.', tipo: 'Critico', leido: true, fecha: '2025-07-20T09:15:00' },
 ];
 
 export const mockEvolucionOT = [

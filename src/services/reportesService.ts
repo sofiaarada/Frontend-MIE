@@ -7,35 +7,55 @@ export interface DatosReporte {
   filas: Record<string, unknown>[];
 }
 
-const labelPrioridad = { BAJA: 'Baja', MEDIA: 'Media', ALTA: 'Alta', URGENTE: 'Urgente' };
+const LABEL_PRIORIDAD: Record<number, string> = { 1: 'Baja', 2: 'Media', 3: 'Alta', 4: 'Urgente' };
+const LABEL_ESTADO_ACTIVO: Record<string, string> = {
+  Excelente: 'Excelente', Bueno: 'Bueno', Regular: 'Regular', Malo: 'Malo', Crítico: 'Crítico',
+};
 
 async function getDashboardData() {
-  const data = await dashboardApi.obtenerKpis();
-  return data;
+  return dashboardApi.obtenerKpis();
 }
 
 async function getActivos(filters?: { desde?: string; hasta?: string }) {
-  const params: Record<string, string | number | undefined> = { pageSize: 1000 };
-  if (filters?.desde) params.fecha_adquisicion = filters.desde;
-  if (filters?.hasta) params.fecha_adquisicion = filters.hasta;
+  const params: Record<string, string | number | undefined> = { pageSize: 100 };
+  if (filters?.desde === filters?.hasta && filters?.desde) params.fecha_registro = filters.desde;
   const result = await resourcesApi.listar<any>('activos', params);
   return result.data;
 }
 
 async function getTickets(filters?: { desde?: string; hasta?: string }) {
-  const params: Record<string, string | number | undefined> = { pageSize: 1000 };
-  if (filters?.desde) params.fecha_creacion = filters.desde;
-  if (filters?.hasta) params.fecha_creacion = filters.hasta;
+  const params: Record<string, string | number | undefined> = { pageSize: 100 };
+  if (filters?.desde === filters?.hasta && filters?.desde) params.fecha_creacion = filters.desde;
   const result = await resourcesApi.listar<any>('tickets', params);
   return result.data;
 }
 
-async function getMantenimientos(filters?: { desde?: string; hasta?: string }) {
-  const params: Record<string, string | number | undefined> = { pageSize: 1000 };
-  if (filters?.desde) params.fecha_programada = filters.desde;
-  if (filters?.hasta) params.fecha_programada = filters.hasta;
-  const result = await resourcesApi.listar<any>('mantenimientos', params);
+async function getMantenimientos() {
+  const result = await resourcesApi.listar<any>('mantenimientos', { pageSize: 100 });
   return result.data;
+}
+
+async function getMateriales() {
+  const result = await resourcesApi.listar<any>('materiales_mantenimiento', { pageSize: 100 });
+  return result.data;
+}
+
+async function getCategorias() {
+  try {
+    const result = await resourcesApi.listar<any>('categorias_activos', { pageSize: 100 });
+    const map: Record<number, string> = {};
+    result.data.forEach((c: any) => { map[c.id_categoria] = c.nombre_categoria; });
+    return map;
+  } catch { return {}; }
+}
+
+async function getEstadosTicket() {
+  try {
+    const result = await resourcesApi.listar<any>('estados_ticket', { pageSize: 100 });
+    const map: Record<number, string> = {};
+    result.data.forEach((e: any) => { map[e.id_estado] = e.nombre_estado; });
+    return map;
+  } catch { return {}; }
 }
 
 async function getIndiceEvolucion() {
@@ -66,29 +86,36 @@ export const reportesService = {
 
   async inventarioActivos(desde?: string, hasta?: string): Promise<DatosReporte> {
     const data = await getActivos({ desde, hasta });
+    const categorias = await getCategorias();
     return {
       columnas: [
         { clave: 'codigo', titulo: 'Código' }, { clave: 'nombre', titulo: 'Activo' },
         { clave: 'categoria', titulo: 'Categoría' }, { clave: 'estado', titulo: 'Estado' },
-        { clave: 'valor', titulo: 'Valor', tipo: 'moneda' },
+        { clave: 'riesgo', titulo: 'Nivel de riesgo' },
       ],
       filas: data.map((a: any) => ({
-        codigo: a.codigo, nombre: a.nombre, categoria: a.categoria, estado: a.estado_activo, valor: a.valor,
+        codigo: a.codigo_inventario,
+        nombre: a.nombre_activo,
+        categoria: categorias[a.id_categoria] ?? 'Sin categoría',
+        estado: LABEL_ESTADO_ACTIVO[a.estado_activo] ?? a.estado_operativo,
+        riesgo: a.nivel_riesgo,
       })),
     };
   },
 
   async otPorPrioridad(desde?: string, hasta?: string): Promise<DatosReporte> {
     const data = await getTickets({ desde, hasta });
+    const estados = await getEstadosTicket();
     return {
       columnas: [
         { clave: 'codigo', titulo: 'Código' }, { clave: 'titulo', titulo: 'Título' },
-        { clave: 'espacio', titulo: 'Espacio' }, { clave: 'prioridad', titulo: 'Prioridad' },
-        { clave: 'estado', titulo: 'Estado' },
+        { clave: 'prioridad', titulo: 'Prioridad' }, { clave: 'estado', titulo: 'Estado' },
       ],
       filas: data.map((t: any) => ({
-        codigo: t.codigo, titulo: t.titulo, espacio: t.espacio_nombre,
-        prioridad: labelPrioridad[t.id_prioridad as keyof typeof labelPrioridad] ?? 'Media', estado: t.id_estado,
+        codigo: `OT-${t.id_ticket}`,
+        titulo: t.titulo,
+        prioridad: LABEL_PRIORIDAD[t.id_prioridad] ?? 'Media',
+        estado: estados[t.id_estado] ?? String(t.id_estado),
       })),
     };
   },
@@ -96,11 +123,18 @@ export const reportesService = {
   async presupuestoVsReal(): Promise<DatosReporte> {
     const presupuesto = await getPresupuestoComparativo();
     const mantenimientos = await getMantenimientos();
+    const materiales = await getMateriales();
+
+    const mesPorMantenimiento: Record<number, string> = {};
+    mantenimientos.forEach((m: any) => { mesPorMantenimiento[m.id_mantenimiento] = (m.fecha_programada || '').slice(0, 7); });
+
     const realPorMes: Record<string, number> = {};
-    mantenimientos.forEach((m: any) => {
-      const mes = m.fecha_programada.slice(0, 7);
-      realPorMes[mes] = (realPorMes[mes] ?? 0) + Number(m.costo);
+    materiales.forEach((mat: any) => {
+      const mes = mesPorMantenimiento[mat.id_mantenimiento];
+      if (!mes) return;
+      realPorMes[mes] = (realPorMes[mes] ?? 0) + Number(mat.cantidad) * Number(mat.costo_unitario);
     });
+
     return {
       columnas: [
         { clave: 'mes', titulo: 'Mes' },
@@ -110,13 +144,8 @@ export const reportesService = {
       ],
       filas: presupuesto.map((p: any) => {
         const real = realPorMes[p.mes] ?? 0;
-        const presupuestado = p.valor * 1000;
-        return {
-          mes: p.mes,
-          presupuestado,
-          real,
-          diferencia: presupuestado - real,
-        };
+        const presupuestado = Number(p.valor) * 1000;
+        return { mes: p.mes, presupuestado, real, diferencia: presupuestado - real };
       }),
     };
   },
@@ -129,12 +158,10 @@ export const reportesService = {
   async otAcumuladoPorPrioridad() {
     const tickets = await getTickets();
     const conteo = tickets.reduce<Record<string, number>>((acc, t) => {
-      const key = t.id_prioridad === 1 ? 'BAJA' : t.id_prioridad === 2 ? 'MEDIA' : t.id_prioridad === 3 ? 'ALTA' : 'URGENTE';
+      const key = LABEL_PRIORIDAD[t.id_prioridad] ?? 'Media';
       acc[key] = (acc[key] ?? 0) + 1;
       return acc;
     }, {});
-    return (['BAJA', 'MEDIA', 'ALTA', 'URGENTE'] as const).map((p) => ({
-      categoria: labelPrioridad[p], cantidad: conteo[p] ?? 0,
-    }));
+    return ['Baja', 'Media', 'Alta', 'Urgente'].map((p) => ({ categoria: p, cantidad: conteo[p] ?? 0 }));
   },
 };

@@ -8,17 +8,15 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { prioridadesTicket, estadosTicket } from '@/constants/formOptions';
-import { useEspacios } from '@/hooks/useEspacios';
+import { useActivos } from '@/hooks/useActivos';
+import type { TicketInput } from '@/services/ticketsService';
 
 const schema = z.object({
   titulo: z.string().min(3, 'Ingresá un título.'),
   descripcion: z.string().min(3, 'Ingresá una descripción.'),
-  espacioNombre: z.string().min(1, 'Seleccioná un espacio.'),
-  responsable: z.string().min(2, 'Ingresá el responsable.'),
-  creadoPor: z.string().min(2, 'Ingresá quién lo solicita.'),
+  activoId: z.string().min(1, 'Seleccioná un activo.'),
   prioridad: z.enum(['BAJA', 'MEDIA', 'ALTA', 'URGENTE']),
   estado: z.enum(['PENDIENTE', 'EN_PROCESO', 'FINALIZADO', 'CANCELADO']),
-  fechaVencimiento: z.string().min(1, 'Ingresá la fecha límite.'),
 });
 
 export type TicketFormValues = z.infer<typeof schema>;
@@ -31,9 +29,7 @@ interface TicketFormModalProps {
 }
 
 const valoresVacios: TicketFormValues = {
-  titulo: '', descripcion: '', espacioNombre: '',
-  responsable: '', creadoPor: '', prioridad: 'MEDIA', estado: 'PENDIENTE',
-  fechaVencimiento: new Date().toISOString().slice(0, 10),
+  titulo: '', descripcion: '', activoId: '', prioridad: 'MEDIA', estado: 'PENDIENTE',
 };
 
 export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: TicketFormModalProps) {
@@ -42,16 +38,18 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
     resolver: zodResolver(schema),
     defaultValues: valoresVacios,
   });
-  const { data: espacios = [], isLoading } = useEspacios();
+  const { data: activos = [], isLoading } = useActivos();
 
   useEffect(() => {
-    if (abierto) reset(ticket ? { ...ticket } : valoresVacios);
+    if (abierto) {
+      reset(ticket ? { titulo: ticket.titulo, descripcion: ticket.descripcion, activoId: ticket.activoId ?? '', prioridad: ticket.prioridad, estado: ticket.estado } : valoresVacios);
+    }
   }, [abierto, ticket, reset]);
 
   const onSubmit = async (valores: TicketFormValues) => {
     setGuardando(true);
     try {
-      await onGuardar(valores);
+      await onGuardar(valores as TicketInput);
       onCerrar();
     } finally {
       setGuardando(false);
@@ -87,18 +85,10 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
           {errors.descripcion && <p className="mt-1 text-xs text-danger-500">{errors.descripcion.message}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Select label="Espacio" error={errors.espacioNombre?.message} {...register('espacioNombre')} disabled={isLoading}>
-            <option value="">Seleccioná un espacio</option>
-            {espacios.map((e) => <option key={e.id} value={e.nombre}>{e.nombre}</option>)}
-          </Select>
-          <Input label="Responsable" placeholder="Carlos Rivas" error={errors.responsable?.message} {...register('responsable')} />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Input label="Solicitado por" placeholder="María Alvarado" error={errors.creadoPor?.message} {...register('creadoPor')} />
-          <Input label="Fecha límite" type="date" error={errors.fechaVencimiento?.message} {...register('fechaVencimiento')} />
-        </div>
+        <Select label="Activo asociado" error={errors.activoId?.message} {...register('activoId')} disabled={isLoading}>
+          <option value="">Seleccioná un activo</option>
+          {activos.map((a) => <option key={a.id} value={a.id}>{a.codigo} · {a.nombre}</option>)}
+        </Select>
 
         <div className="grid grid-cols-2 gap-4">
           <Controller

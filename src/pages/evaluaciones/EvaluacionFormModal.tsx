@@ -11,7 +11,7 @@ import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { checklistBase } from '@/constants/formOptions';
 import { cn } from '@/utils/cn';
-import { useEspacios } from '@/hooks/useEspacios';
+import { useActivos } from '@/hooks/useActivos';
 import { uploadService } from '@/services/uploadService';
 import { toast } from 'sonner';
 
@@ -47,7 +47,7 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
   const [evidencias, setEvidencias] = useState<string[]>([]);
   const [arrastrando, setArrastrando] = useState(false);
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const { data: espacios = [], isLoading } = useEspacios();
+  const { data: activos = [], isLoading } = useActivos();
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -96,10 +96,10 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
   const puntaje = checklist.length ? Math.round((buenos / checklist.length) * 100) : 0;
 
   const onSubmit = async (valores: FormValues) => {
-    const espacio = espacios.find((e) => e.id === valores.espacioId);
+    const activo = activos.find((a) => a.id === valores.espacioId);
     setGuardando(true);
     try {
-      await onGuardar({ ...valores, espacioNombre: espacio?.nombre ?? '', checklist, evidencias });
+      await onGuardar({ ...valores, espacioNombre: activo?.nombre ?? '', checklist, evidencias });
       onCerrar();
     } finally {
       setGuardando(false);
@@ -126,9 +126,9 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
     >
       <fieldset disabled={soloLectura} className="space-y-5">
         <div className="grid grid-cols-3 gap-4">
-          <Select label="Espacio" error={errors.espacioId?.message} {...register('espacioId')} disabled={isLoading}>
-            <option value="">Seleccioná un espacio</option>
-            {espacios.map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}
+          <Select label="Activo evaluado" error={errors.espacioId?.message} {...register('espacioId')} disabled={isLoading}>
+            <option value="">Seleccioná un activo</option>
+            {activos.map((a) => <option key={a.id} value={a.id}>{a.codigo} · {a.nombre}</option>)}
           </Select>
           <Input label="Inspector" placeholder="Patricia Núñez" error={errors.inspector?.message} {...register('inspector')} />
           <Input label="Fecha" type="date" error={errors.fecha?.message} {...register('fecha')} />

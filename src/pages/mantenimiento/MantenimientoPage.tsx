@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Calendar, List, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Mantenimiento, EstadoTicket } from '@/types';
-import { mantenimientoService, type MantenimientoInput } from '@/services/mantenimientoService';
+import { mantenimientoService } from '@/services/mantenimientoService';
 import { Tabs } from '@/components/ui/Tabs';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';

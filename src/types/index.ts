@@ -103,6 +103,7 @@ export interface Ticket {
   creadoPor: string;
   fechaCreacion: string;
   fechaVencimiento: string;
+  activoId?: string;
 }
 
 export interface Mantenimiento {
@@ -114,13 +115,14 @@ export interface Mantenimiento {
   costo: number;
   fechaProgramada: string;
   estado: EstadoTicket;
+  activoId?: string;
 }
 
 export interface Notificacion {
   id: string;
   titulo: string;
   descripcion: string;
-  tipo: 'INFO' | 'ALERTA' | 'EXITO' | 'ERROR';
+  tipo: 'Info' | 'Advertencia' | 'Critico';
   leido: boolean;
   fecha: string;
 }

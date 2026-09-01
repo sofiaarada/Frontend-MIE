@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   Building2, Boxes, Ticket as TicketIcon, Gauge,
-  AlertTriangle, Droplets, Lightbulb, ClipboardCheck,
+  AlertTriangle, ClipboardCheck,
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -13,7 +13,15 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { KpiCard } from './KpiCard';
 import { formatearMoneda } from '@/utils/format';
 
-const iconoAlerta = { ALERTA: AlertTriangle, INFO: ClipboardCheck, EXITO: ClipboardCheck, ERROR: AlertTriangle };
+const iconoAlerta: Record<string, typeof AlertTriangle> = {
+  Info: AlertTriangle,
+  Advertencia: AlertTriangle,
+  Critico: AlertTriangle,
+  Alerta: AlertTriangle,
+  ALERTA: AlertTriangle,
+  INFO: ClipboardCheck,
+  Critico: AlertTriangle,
+};
 
 export function DashboardPage() {
   const { data: kpi, isLoading: cargandoKpi } = useQuery({ queryKey: ['kpis'], queryFn: dashboardService.obtenerKpis });
@@ -135,7 +143,7 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-1 pt-2">
             {notificaciones.slice(0, 4).map((n) => {
-              const Icono = iconoAlerta[n.tipo as keyof typeof iconoAlerta];
+              const Icono = iconoAlerta[n.tipo ?? ''] ?? AlertTriangle;
               return (
                 <div key={n.id} className="flex items-start gap-3 rounded-lg px-2 py-2.5 hover:bg-surface-50 dark:hover:bg-surface-800/60">
                   <Icono className="mt-0.5 h-4 w-4 shrink-0 text-warning-500" />

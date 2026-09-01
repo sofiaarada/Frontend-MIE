@@ -1,6 +1,5 @@
 import type { KpiDashboard } from '@/types';
 import { dashboardApi } from './api/resources';
-import { resourcesApi } from './api/resources';
 
 interface DashboardData {
   kpis: KpiDashboard;
