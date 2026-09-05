@@ -97,7 +97,7 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Valor (ARS)" type="number" min={0} error={errors.valor?.message} {...register('valor')} />
+          <Input label="Valor (COP)" type="number" min={0} error={errors.valor?.message} {...register('valor')} />
           <Input label="Fecha de adquisición" type="date" error={errors.fechaAdquisicion?.message} {...register('fechaAdquisicion')} />
         </div>
 

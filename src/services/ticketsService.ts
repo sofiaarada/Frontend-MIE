@@ -9,6 +9,7 @@ export type TicketInput = {
   activoId: string;
   prioridad: Ticket['prioridad'];
   estado: Ticket['estado'];
+  fechaVencimiento?: string;
 };
 
 interface TicketDB {
@@ -78,6 +79,7 @@ function payload(input: TicketInput): Record<string, unknown> {
     id_usuario_creador: usuario ? Number(usuario.id) : 1,
     titulo: input.titulo,
     descripcion_incidente: input.descripcion,
+    fecha_cierre: input.fechaVencimiento || null,
   };
 }
 
@@ -92,7 +94,10 @@ export const ticketsService = {
     }
     const result = await resourcesApi.listar<TicketDB>('tickets', params);
     const activos = await activoNombreMap();
-    return result.data.map((t) => mapTicket(t, activos)).sort((a, b) => b.fechaCreacion.localeCompare(a.fechaCreacion));
+    const prioridadDesc = (p: Ticket['prioridad']) => PRIORIDAD_A_ID[p];
+    return result.data
+      .map((t) => mapTicket(t, activos))
+      .sort((a, b) => b.fechaCreacion.localeCompare(a.fechaCreacion) || (prioridadDesc(b.prioridad) - prioridadDesc(a.prioridad)) || b.id.localeCompare(a.id));
   },
 
   async crear(input: TicketInput): Promise<Ticket> {
@@ -106,7 +111,7 @@ export const ticketsService = {
   },
 
   async actualizarEstado(id: string, estado: EstadoTicket): Promise<Ticket> {
-    const updated = await resourcesApi.actualizar<TicketDB, { id_estado: number }>('tickets', id, { id_estado: ESTADO_A_ID[estado] });
+    const updated = await resourcesApi.actualizarParcial<TicketDB, { id_estado: number }>('tickets', id, { id_estado: ESTADO_A_ID[estado] });
     return mapTicket(updated, await activoNombreMap());
   },
 

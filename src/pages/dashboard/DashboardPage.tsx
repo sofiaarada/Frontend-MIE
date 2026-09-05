@@ -20,7 +20,6 @@ const iconoAlerta: Record<string, typeof AlertTriangle> = {
   Alerta: AlertTriangle,
   ALERTA: AlertTriangle,
   INFO: ClipboardCheck,
-  Critico: AlertTriangle,
 };
 
 export function DashboardPage() {
@@ -160,7 +159,7 @@ export function DashboardPage() {
         <Card className="xl:col-span-2">
           <CardHeader>
             <CardTitle>Presupuesto de mantenimiento 2026</CardTitle>
-            <span className="text-xs text-surface-400">Miles ARS</span>
+            <span className="text-xs text-surface-400">Miles COP</span>
           </CardHeader>
           <CardContent className="pt-4">
             {cargandoPresupuesto ? (

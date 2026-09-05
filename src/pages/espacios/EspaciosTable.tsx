@@ -3,6 +3,7 @@ import type { Espacio } from '@/types';
 import { BadgeEstado } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { formatearFecha } from '@/utils/format';
+import { urlImagen } from '@/utils/imagen';
 
 interface EspaciosTableProps {
   espacios: Espacio[];
@@ -37,7 +38,7 @@ export function EspaciosTable({ espacios, onVer, onEditar, onEliminar }: Espacio
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-100 dark:bg-surface-800">
                     {e.fotoUrl ? (
-                      <img src={e.fotoUrl} alt={e.nombre} className="h-full w-full object-cover" />
+                      <img src={urlImagen(e.fotoUrl)} alt={e.nombre} className="h-full w-full object-cover" />
                     ) : (
                       <Building2 className="h-4 w-4 text-surface-300 dark:text-surface-600" />
                     )}

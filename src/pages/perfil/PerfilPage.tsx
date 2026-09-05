@@ -32,7 +32,7 @@ export function PerfilPage() {
   });
   const guardar = async (values: PerfilInput) => {
     setGuardando(true);
-    try { const updated = await profileService.actualizar(values); actualizarSesion(updated); queryClient.setQueryData(['perfil'], updated); toast.success('Perfil actualizado.'); }
+    try { const updated = await profileService.actualizar(values); actualizarSesion(updated); queryClient.setQueryData(['perfil'], updated); queryClient.invalidateQueries({ queryKey: ['usuarios'] }); toast.success('Perfil actualizado.'); }
     catch (error) { toast.error(error instanceof Error ? error.message : 'No se pudo guardar el perfil.'); }
     finally { setGuardando(false); }
   };

@@ -12,6 +12,7 @@ import { tiposEspacio } from '@/constants/formOptions';
 import { cn } from '@/utils/cn';
 import { useSedes } from '@/hooks/useSedes';
 import { uploadService } from '@/services/uploadService';
+import { urlImagen } from '@/utils/imagen';
 import { toast } from 'sonner';
 
 const schema = z.object({
@@ -23,6 +24,7 @@ const schema = z.object({
   areaM2: z.coerce.number().min(1, 'El área debe ser mayor a 0.'),
   capacidad: z.coerce.number().min(0, 'La capacidad no puede ser negativa.'),
   estado: z.enum(['BUENO', 'REGULAR', 'DETERIORADO', 'CRITICO']),
+  ultimaInspeccion: z.string().optional(),
   fotoUrl: z.string().optional(),
 });
 
@@ -38,7 +40,7 @@ interface EspacioFormModalProps {
 
 const valoresVacios: EspacioFormValues = {
   nombre: '', codigo: '', tipo: '', sedeId: '', piso: '',
-  areaM2: 0, capacidad: 0, estado: 'BUENO', fotoUrl: '',
+  areaM2: 0, capacidad: 0, estado: 'BUENO', ultimaInspeccion: '', fotoUrl: '',
 };
 
 export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLectura }: EspacioFormModalProps) {
@@ -56,7 +58,7 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
 
   useEffect(() => {
     if (abierto) {
-      reset(espacio ? { ...espacio, fotoUrl: espacio.fotoUrl ?? '' } : valoresVacios);
+      reset(espacio ? { ...espacio, ultimaInspeccion: espacio.ultimaInspeccion ?? '', fotoUrl: espacio.fotoUrl ?? '' } : valoresVacios);
     }
   }, [abierto, espacio, reset]);
 
@@ -117,7 +119,7 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
         >
           {fotoUrl ? (
             <>
-              <img src={fotoUrl} alt="Vista previa" className="h-full w-full object-cover" />
+              <img src={urlImagen(fotoUrl)} alt="Vista previa" className="h-full w-full object-cover" />
               {!soloLectura && (
                 <button
                   type="button"
@@ -165,18 +167,21 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
           <Input label="Capacidad" type="number" min={0} error={errors.capacidad?.message} {...register('capacidad')} />
         </div>
 
-        <Controller
-          control={control}
-          name="estado"
-          render={({ field }) => (
-            <Select label="Estado" value={field.value} onChange={field.onChange}>
-              <option value="BUENO">Bueno</option>
-              <option value="REGULAR">Regular</option>
-              <option value="DETERIORADO">Deteriorado</option>
-              <option value="CRITICO">Crítico</option>
-            </Select>
-          )}
-        />
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Últ. inspección" type="date" error={errors.ultimaInspeccion?.message} {...register('ultimaInspeccion')} />
+          <Controller
+            control={control}
+            name="estado"
+            render={({ field }) => (
+              <Select label="Estado" value={field.value} onChange={field.onChange}>
+                <option value="BUENO">Bueno</option>
+                <option value="REGULAR">Regular</option>
+                <option value="DETERIORADO">Deteriorado</option>
+                <option value="CRITICO">Crítico</option>
+              </Select>
+            )}
+          />
+        </div>
       </fieldset>
     </Modal>
   );

@@ -11,6 +11,7 @@ import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { checklistBase } from '@/constants/formOptions';
 import { cn } from '@/utils/cn';
+import { urlImagen } from '@/utils/imagen';
 import { useActivos } from '@/hooks/useActivos';
 import { uploadService } from '@/services/uploadService';
 import { toast } from 'sonner';
@@ -208,7 +209,7 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
           >
             {evidencias.map((url, i) => (
               <div key={i} className="group relative h-16 w-16 overflow-hidden rounded-lg">
-                <img src={url} alt={`Evidencia ${i + 1}`} className="h-full w-full object-cover" />
+                <img src={urlImagen(url)} alt={`Evidencia ${i + 1}`} className="h-full w-full object-cover" />
                 {!soloLectura && (
                   <button
                     type="button"

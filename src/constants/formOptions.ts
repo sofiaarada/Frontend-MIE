@@ -25,10 +25,11 @@ export const checklistBase = [
 ];
 
 export const roles = [
-  { value: 'ADMIN', label: 'Administrador' },
-  { value: 'COORDINADOR', label: 'Coordinador' },
-  { value: 'INSPECTOR', label: 'Inspector' },
-  { value: 'MANTENIMIENTO', label: 'Mantenimiento' },
+  { value: 'Administrador', label: 'Administrador' },
+  { value: 'Coordinador', label: 'Coordinador' },
+  { value: 'Inspector', label: 'Inspector' },
+  { value: 'Técnico', label: 'Técnico' },
+  { value: 'Rector', label: 'Rector' },
 ];
 
 export const prioridadesTicket = [
@@ -42,6 +43,7 @@ export const estadosTicket = [
   { value: 'PENDIENTE', label: 'Pendiente' },
   { value: 'EN_PROCESO', label: 'En proceso' },
   { value: 'FINALIZADO', label: 'Finalizado' },
+  { value: 'CANCELADO', label: 'Cancelado' },
 ];
 
 export const estadosInfraestructura = [

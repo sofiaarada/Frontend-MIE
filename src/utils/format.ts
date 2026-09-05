@@ -1,5 +1,5 @@
 export const formatearMoneda = (valor: number) =>
-  new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(valor);
+  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(valor);
 
 export const formatearFecha = (iso: string) => {
   if (!iso) return '';

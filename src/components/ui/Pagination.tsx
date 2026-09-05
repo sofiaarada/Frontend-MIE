@@ -14,7 +14,7 @@ export function Pagination({ page, pageSize, total, onPageChange }: PaginationPr
   const hasta = Math.min(page * pageSize, total);
 
   return (
-    <div className="flex items-center justify-between border-t border-surface-100 px-1 pt-4 dark:border-surface-800">
+    <div className="flex items-center justify-between border-t border-surface-100 px-1 pt-4 pr-16 dark:border-surface-800">
       <p className="text-xs text-surface-500 dark:text-surface-400">
         Mostrando <span className="font-medium text-surface-700 dark:text-surface-200">{desde}-{hasta}</span> de{' '}
         <span className="font-medium text-surface-700 dark:text-surface-200">{total}</span>

@@ -1,5 +1,6 @@
 import { cn } from '@/utils/cn';
 import { iniciales } from '@/utils/format';
+import { urlImagen } from '@/utils/imagen';
 
 interface AvatarProps {
   nombre: string;
@@ -14,8 +15,9 @@ const paleta = ['bg-primary-500', 'bg-success-500', 'bg-warning-500', 'bg-danger
 const colorDesdeNombre = (nombre: string) => paleta[nombre.charCodeAt(0) % paleta.length];
 
 export function Avatar({ nombre, src, size = 'md', className }: AvatarProps) {
-  if (src) {
-    return <img src={src} alt={nombre} className={cn('rounded-full object-cover', tamanos[size], className)} />;
+  const ruta = urlImagen(src);
+  if (ruta) {
+    return <img src={ruta} alt={nombre} className={cn('rounded-full object-cover', tamanos[size], className)} />;
   }
   return (
     <div

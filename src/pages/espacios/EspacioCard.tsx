@@ -3,6 +3,7 @@ import type { Espacio } from '@/types';
 import { Card } from '@/components/ui/Card';
 import { BadgeEstado } from '@/components/ui/Badge';
 import { formatearFecha } from '@/utils/format';
+import { urlImagen } from '@/utils/imagen';
 
 interface EspacioCardProps {
   espacio: Espacio;
@@ -16,7 +17,7 @@ export function EspacioCard({ espacio, onVer, onEditar, onEvaluar }: EspacioCard
     <Card className="flex flex-col overflow-hidden transition-shadow hover:shadow-elevated">
       <div className="relative h-28 shrink-0 bg-surface-100 dark:bg-surface-800">
         {espacio.fotoUrl ? (
-          <img src={espacio.fotoUrl} alt={espacio.nombre} className="h-full w-full object-cover" />
+          <img src={urlImagen(espacio.fotoUrl)} alt={espacio.nombre} className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center text-surface-300 dark:text-surface-600">
             <Building2 className="h-8 w-8" />

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { ChevronsLeft } from 'lucide-react';
+import { ChevronsLeft, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { navItems } from '@/routes/navigation';
 import { useUiStore } from '@/store/uiStore';
@@ -7,7 +7,7 @@ import { cn } from '@/utils/cn';
 import { useAuthStore } from '@/store/authStore';
 
 export function Sidebar() {
-  const { sidebarColapsado, alternarSidebar, sidebarMobileAbierto, setSidebarMobileAbierto } = useUiStore();
+  const { sidebarColapsado, alternarSidebar, sidebarMobileAbierto, setSidebarMobileAbierto, abrirChat } = useUiStore();
   const rol = useAuthStore((s) => s.session?.usuario.rol);
 
   const contenido = (
@@ -61,6 +61,22 @@ export function Sidebar() {
             )}
           </NavLink>
         ))}
+
+        <button
+          data-tour="asistente"
+          onClick={() => {
+            setSidebarMobileAbierto(false);
+            abrirChat();
+          }}
+          className={cn(
+            'focus-ring group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-surface-500 hover:bg-surface-100 hover:text-surface-800 dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-100',
+            sidebarColapsado && 'justify-center px-0'
+          )}
+          title={sidebarColapsado ? 'Asistente MIE' : undefined}
+        >
+          <Sparkles className="h-[18px] w-[18px] shrink-0" />
+          {!sidebarColapsado && <span className="whitespace-nowrap">Asistente MIE</span>}
+        </button>
       </nav>
 
       <button

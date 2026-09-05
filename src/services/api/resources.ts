@@ -50,6 +50,11 @@ export const resourcesApi = {
     return response.data.data;
   },
 
+  actualizarParcial: async <T, TInput>(resource: string, id: string | number, data: TInput): Promise<T> => {
+    const response = await apiClient.patch<ApiResponse<T>>(`/api/${resource}/${id}`, data);
+    return response.data.data;
+  },
+
   eliminar: async (resource: string, id: string | number): Promise<void> => {
     await apiClient.delete(`/api/${resource}/${id}`);
   },

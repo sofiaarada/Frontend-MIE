@@ -1,19 +1,23 @@
 import { useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, List, Plus } from 'lucide-react';
+import { Calendar, List, Plus, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Mantenimiento, EstadoTicket } from '@/types';
-import { mantenimientoService } from '@/services/mantenimientoService';
+import { mantenimientoService, type MantenimientoInput } from '@/services/mantenimientoService';
+import { usuariosService } from '@/services/usuariosService';
+import { useAuthStore } from '@/store/authStore';
+import { Input } from '@/components/ui/Input';
 import { Tabs } from '@/components/ui/Tabs';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { formatearMoneda } from '@/utils/format';
+import { mensajeError } from '@/utils/errores';
 import { cn } from '@/utils/cn';
 import { MantenimientoCalendar } from './MantenimientoCalendar';
 import { MantenimientoTable } from './MantenimientoTable';
-import { MantenimientoFormModal, type MantenimientoFormValues } from './MantenimientoFormModal';
+import { MantenimientoFormModal, type MantenimientoFormValues, type ResponsableOpcion } from './MantenimientoFormModal';
 
 type FiltroEstado = 'TODOS' | EstadoTicket;
 const filtros: { value: FiltroEstado; label: string }[] = [
@@ -25,8 +29,10 @@ const filtros: { value: FiltroEstado; label: string }[] = [
 
 export function MantenimientoPage() {
   const queryClient = useQueryClient();
+  const usuario = useAuthStore((s) => s.session?.usuario);
   const [vista, setVista] = useState<'calendario' | 'tabla'>('calendario');
   const [estado, setEstado] = useState<FiltroEstado>('TODOS');
+  const [busqueda, setBusqueda] = useState('');
 
   const [modalAbierto, setModalAbierto] = useState(false);
   const [itemSeleccionado, setItemSeleccionado] = useState<Mantenimiento | null>(null);
@@ -38,10 +44,30 @@ export function MantenimientoPage() {
     queryFn: mantenimientoService.listar,
   });
 
-  const itemsFiltrados = useMemo(
-    () => (estado === 'TODOS' ? items : items.filter((i) => i.estado === estado)),
-    [items, estado]
-  );
+  const { data: responsables = [] } = useQuery<ResponsableOpcion[]>({
+    queryKey: ['responsables'],
+    queryFn: async () => {
+      try {
+        const r = await usuariosService.listar({ pageSize: 1000 });
+        return r.data.map((u) => ({ id: u.id, nombre: u.nombre }));
+      } catch {
+        return usuario ? [{ id: usuario.id, nombre: usuario.nombre }] : [];
+      }
+    },
+  });
+
+  const itemsFiltrados = useMemo(() => {
+    let lista = estado === 'TODOS' ? items : items.filter((i) => i.estado === estado);
+    const t = busqueda.trim().toLowerCase();
+    if (t) {
+      lista = lista.filter((i) =>
+        i.titulo.toLowerCase().includes(t) ||
+        i.responsable.toLowerCase().includes(t) ||
+        i.materiales.some((m) => m.toLowerCase().includes(t))
+      );
+    }
+    return lista;
+  }, [items, estado, busqueda]);
 
   const costoTotal = useMemo(() => itemsFiltrados.reduce((acc, i) => acc + i.costo, 0), [itemsFiltrados]);
 
@@ -51,17 +77,26 @@ export function MantenimientoPage() {
   const abrirEditar = (i: Mantenimiento) => { setItemSeleccionado(i); setModalAbierto(true); };
 
   const guardar = async (valores: MantenimientoFormValues) => {
+    const input: MantenimientoInput = {
+      titulo: valores.titulo,
+      activoId: valores.activoId,
+      fechaProgramada: valores.fechaProgramada,
+      estado: valores.estado,
+      responsableId: valores.responsableId || undefined,
+      materiales: valores.materiales ?? '',
+      costo: Number(valores.costo ?? 0),
+    };
     try {
       if (itemSeleccionado) {
-        await mantenimientoService.actualizar(itemSeleccionado.id, valores);
+        await mantenimientoService.actualizar(itemSeleccionado.id, input);
         toast.success('Mantenimiento actualizado.');
       } else {
-        await mantenimientoService.crear(valores);
+        await mantenimientoService.crear(input);
         toast.success('Mantenimiento programado.');
       }
       invalidar();
-    } catch {
-      toast.error('No se pudo guardar el mantenimiento.');
+    } catch (error) {
+      toast.error(mensajeError(error));
     }
   };
 
@@ -95,7 +130,17 @@ export function MantenimientoPage() {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Tabs opciones={filtros} valor={estado} onChange={(v) => setEstado(v as FiltroEstado)} />
+        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="max-w-xs flex-1">
+            <Input
+              placeholder="Buscar mantenimiento, responsable o materiales…"
+              icono={<Search className="h-4 w-4" />}
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+          </div>
+          <Tabs opciones={filtros} valor={estado} onChange={(v) => setEstado(v as FiltroEstado)} />
+        </div>
 
         <div className="inline-flex items-center gap-1 self-start rounded-lg bg-surface-100 p-1 dark:bg-surface-800">
           <button
@@ -134,6 +179,7 @@ export function MantenimientoPage() {
         onCerrar={() => setModalAbierto(false)}
         onGuardar={guardar}
         item={itemSeleccionado}
+        responsables={responsables}
       />
 
       <ConfirmDialog

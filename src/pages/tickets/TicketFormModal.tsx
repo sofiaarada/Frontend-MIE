@@ -17,6 +17,7 @@ const schema = z.object({
   activoId: z.string().min(1, 'Seleccioná un activo.'),
   prioridad: z.enum(['BAJA', 'MEDIA', 'ALTA', 'URGENTE']),
   estado: z.enum(['PENDIENTE', 'EN_PROCESO', 'FINALIZADO', 'CANCELADO']),
+  fechaVencimiento: z.string().optional(),
 });
 
 export type TicketFormValues = z.infer<typeof schema>;
@@ -29,7 +30,7 @@ interface TicketFormModalProps {
 }
 
 const valoresVacios: TicketFormValues = {
-  titulo: '', descripcion: '', activoId: '', prioridad: 'MEDIA', estado: 'PENDIENTE',
+  titulo: '', descripcion: '', activoId: '', prioridad: 'MEDIA', estado: 'PENDIENTE', fechaVencimiento: '',
 };
 
 export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: TicketFormModalProps) {
@@ -42,7 +43,7 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
 
   useEffect(() => {
     if (abierto) {
-      reset(ticket ? { titulo: ticket.titulo, descripcion: ticket.descripcion, activoId: ticket.activoId ?? '', prioridad: ticket.prioridad, estado: ticket.estado } : valoresVacios);
+      reset(ticket ? { titulo: ticket.titulo, descripcion: ticket.descripcion, activoId: ticket.activoId ?? '', prioridad: ticket.prioridad, estado: ticket.estado, fechaVencimiento: ticket.fechaVencimiento || '' } : valoresVacios);
     }
   }, [abierto, ticket, reset]);
 
@@ -91,6 +92,7 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
         </Select>
 
         <div className="grid grid-cols-2 gap-4">
+          <Input label="Vence" type="date" error={errors.fechaVencimiento?.message} {...register('fechaVencimiento')} />
           <Controller
             control={control}
             name="prioridad"

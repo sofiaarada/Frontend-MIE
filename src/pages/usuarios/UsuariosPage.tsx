@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Search, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { usuariosService, type UsuarioInput, type UsuarioAdmin } from '@/services/usuariosService';
+import { mensajeError } from '@/utils/errores';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
@@ -38,7 +39,18 @@ export function UsuariosPage() {
   const abrirEditar = (u: UsuarioAdmin) => { setUsuarioSeleccionado(u); setModalAbierto(true); };
 
   const guardar = async (valores: UsuarioFormValues) => {
-    const input: UsuarioInput = valores;
+    const input: UsuarioInput = {
+      tipo_documento: valores.tipo_documento,
+      documento_id: valores.documento_id,
+      nombres: valores.nombres,
+      apellidos: valores.apellidos,
+      email: valores.email,
+      telefono: valores.telefono || undefined,
+      id_rol: valores.id_rol,
+      id_institucion: valores.id_institucion ? Number(valores.id_institucion) : null,
+      estado: valores.estado,
+      password: usuarioSeleccionado ? undefined : valores.password,
+    };
     try {
       if (usuarioSeleccionado) {
         await usuariosService.actualizar(usuarioSeleccionado.id, input);
@@ -48,8 +60,8 @@ export function UsuariosPage() {
         toast.success('Usuario creado.');
       }
       invalidar();
-    } catch {
-      toast.error('No se pudo guardar el usuario.');
+    } catch (error) {
+      toast.error(mensajeError(error));
     }
   };
 

@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Sparkles, X, SendHorizontal, Wrench, Ticket as TicketIcon,
+  X, SendHorizontal, Wrench, Ticket as TicketIcon,
   CalendarDays, Wallet, TrendingUp, Building2, AlertTriangle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { useUiStore } from '@/store/uiStore';
 import { consultar } from '@/services/asistenteService';
 import type { RespuestaAsistente } from '@/services/asistenteService';
 import type { EstadoInfraestructura, Prioridad } from '@/types';
@@ -239,7 +240,8 @@ function TarjetaRespuesta({ respuesta }: { respuesta: RespuestaAsistente }) {
 }
 
 export function AsistenteFlotante() {
-  const [abierto, setAbierto] = useState(false);
+  const abierto = useUiStore((s) => s.chatAbierto);
+  const cerrarChat = useUiStore((s) => s.cerrarChat);
   const [entrada, setEntrada] = useState('');
   const [pensando, setPensando] = useState(false);
   const [mensajes, setMensajes] = useState<Mensaje[]>([
@@ -257,10 +259,10 @@ export function AsistenteFlotante() {
 
   useEffect(() => {
     if (!abierto) return;
-    const handler = (e: KeyboardEvent) => e.key === 'Escape' && setAbierto(false);
+    const handler = (e: KeyboardEvent) => e.key === 'Escape' && cerrarChat();
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [abierto]);
+  }, [abierto, cerrarChat]);
 
   useEffect(() => {
     const el = cuerpoRef.current;
@@ -288,26 +290,6 @@ export function AsistenteFlotante() {
 
   return (
     <>
-      {/* Botón flotante */}
-      <AnimatePresence>
-        {!abierto && (
-          <motion.button
-            data-tour="asistente"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.94 }}
-            onClick={() => setAbierto(true)}
-            aria-label="Abrir asistente MIE"
-            className="focus-ring fixed bottom-6 right-6 z-[60] flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-elevated"
-          >
-            <span className="absolute inset-0 animate-ping rounded-full bg-primary-500 opacity-15" />
-            <Sparkles className="relative h-6 w-6" />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
       {/* Panel */}
       <AnimatePresence>
         {abierto && (
@@ -338,7 +320,7 @@ export function AsistenteFlotante() {
                   <p className="text-xs text-surface-300">Consultas sobre tu institución, en español</p>
                 </div>
                 <button
-                  onClick={() => setAbierto(false)}
+                  onClick={cerrarChat}
                   aria-label="Cerrar asistente"
                   className="focus-ring flex h-9 w-9 items-center justify-center rounded-lg text-surface-300 hover:bg-white/10 hover:text-white"
                 >

@@ -26,7 +26,7 @@ export function ActivosTable({ activos, onEditar, onEliminar }: ActivosTableProp
             <th className="px-3 py-3 font-medium">Espacio</th>
             <th className="px-3 py-3 font-medium">Cant.</th>
             <th className="px-3 py-3 font-medium">Estado</th>
-            <th className="px-3 py-3 font-medium">Valor (ARS)</th>
+            <th className="px-3 py-3 font-medium">Valor (COP)</th>
             <th className="px-3 py-3 font-medium text-right">Acciones</th>
           </tr>
         </thead>
