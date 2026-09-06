@@ -52,11 +52,6 @@ export function Sidebar() {
             {!sidebarColapsado && (
               <>
                 <span className="flex-1 truncate">{item.label}</span>
-                {!!item.badge && (
-                  <span className="rounded-full bg-primary-100 px-1.5 py-0.5 text-[11px] font-semibold text-primary-700 dark:bg-primary-500/15 dark:text-primary-400">
-                    {item.badge}
-                  </span>
-                )}
               </>
             )}
           </NavLink>

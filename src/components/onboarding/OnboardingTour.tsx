@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  LayoutDashboard, Search, Bell, SunMoon, UserRound, Compass,
+  LayoutDashboard, Bell, SunMoon, UserRound, Compass,
   X, ArrowLeft, ArrowRight, Check, Sparkles,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -54,14 +54,6 @@ const pasos: Paso[] = [
     icono: LayoutDashboard,
     tono: 'bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400',
     lado: 'derecha',
-  },
-  {
-    tipo: 'objetivo',
-    selector: '[data-tour="buscador"]',
-    titulo: 'Buscador global',
-    descripcion: 'Encontrá cualquier espacio, activo u orden de trabajo sin salir de donde estás.',
-    icono: Search,
-    tono: 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-500',
   },
   {
     tipo: 'objetivo',

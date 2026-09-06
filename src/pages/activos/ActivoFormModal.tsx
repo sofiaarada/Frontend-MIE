@@ -6,6 +6,7 @@ import type { Activo } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { ComboboxBusqueda, type ComboboxOpcion } from '@/components/ui/ComboboxBusqueda';
 import { Button } from '@/components/ui/Button';
 import { categoriasActivo } from '@/constants/formOptions';
 import { useEspacios } from '@/hooks/useEspacios';
@@ -81,14 +82,36 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Select label="Categoría" error={errors.categoria?.message} {...register('categoria')}>
-            <option value="">Seleccioná una categoría</option>
-            {categoriasActivo.map((c) => <option key={c} value={c}>{c}</option>)}
-          </Select>
-          <Select label="Espacio" error={errors.espacioId?.message} {...register('espacioId')} disabled={isLoading}>
-            <option value="">Seleccioná un espacio</option>
-            {espacios.map((e) => <option key={e.id} value={e.id}>{e.nombre}</option>)}
-          </Select>
+          <Controller
+            control={control}
+            name="categoria"
+            render={({ field }) => (
+              <ComboboxBusqueda
+                label="Categoría"
+                placeholder="Buscar categoría…"
+                error={errors.categoria?.message}
+                opciones={categoriasActivo.map((c): ComboboxOpcion => ({ id: c, etiqueta: c }))}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="espacioId"
+            render={({ field }) => (
+              <ComboboxBusqueda
+                label="Espacio"
+                placeholder="Buscar espacio…"
+                error={errors.espacioId?.message}
+                opciones={espacios.map((e): ComboboxOpcion => ({ id: e.id, etiqueta: `${e.codigo} · ${e.nombre}`, detalle: e.tipo }))}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={isLoading}
+                vacioMensaje={isLoading ? 'Cargando espacios…' : 'No hay espacios disponibles.'}
+              />
+            )}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">

@@ -6,6 +6,7 @@ import type { Ticket } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { ComboboxBusqueda, type ComboboxOpcion } from '@/components/ui/ComboboxBusqueda';
 import { Button } from '@/components/ui/Button';
 import { prioridadesTicket, estadosTicket } from '@/constants/formOptions';
 import { useActivos } from '@/hooks/useActivos';
@@ -86,10 +87,22 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
           {errors.descripcion && <p className="mt-1 text-xs text-danger-500">{errors.descripcion.message}</p>}
         </div>
 
-        <Select label="Activo asociado" error={errors.activoId?.message} {...register('activoId')} disabled={isLoading}>
-          <option value="">Seleccioná un activo</option>
-          {activos.map((a) => <option key={a.id} value={a.id}>{a.codigo} · {a.nombre}</option>)}
-        </Select>
+        <Controller
+          control={control}
+          name="activoId"
+          render={({ field }) => (
+            <ComboboxBusqueda
+              label="Activo asociado"
+              placeholder="Buscar activo…"
+              error={errors.activoId?.message}
+              opciones={activos.map((a): ComboboxOpcion => ({ id: a.id, etiqueta: `${a.codigo} · ${a.nombre}`, detalle: a.espacioNombre }))}
+              value={field.value}
+              onChange={field.onChange}
+              disabled={isLoading}
+              vacioMensaje={isLoading ? 'Cargando activos…' : 'No hay activos disponibles.'}
+            />
+          )}
+        />
 
         <div className="grid grid-cols-2 gap-4">
           <Input label="Vence" type="date" error={errors.fechaVencimiento?.message} {...register('fechaVencimiento')} />

@@ -7,6 +7,7 @@ import type { Espacio } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { ComboboxBusqueda, type ComboboxOpcion } from '@/components/ui/ComboboxBusqueda';
 import { Button } from '@/components/ui/Button';
 import { tiposEspacio } from '@/constants/formOptions';
 import { cn } from '@/utils/cn';
@@ -151,14 +152,36 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Select label="Tipo" error={errors.tipo?.message} {...register('tipo')}>
-            <option value="">Seleccioná un tipo</option>
-            {tiposEspacio.map((t) => <option key={t} value={t}>{t}</option>)}
-          </Select>
-          <Select label="Sede" error={errors.sedeId?.message} {...register('sedeId')} disabled={sedesLoading}>
-            <option value="">Seleccioná una sede</option>
-            {sedes.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-          </Select>
+          <Controller
+            control={control}
+            name="tipo"
+            render={({ field }) => (
+              <ComboboxBusqueda
+                label="Tipo"
+                placeholder="Buscar tipo de espacio…"
+                error={errors.tipo?.message}
+                opciones={tiposEspacio.map((t): ComboboxOpcion => ({ id: t, etiqueta: t }))}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="sedeId"
+            render={({ field }) => (
+              <ComboboxBusqueda
+                label="Sede"
+                placeholder="Buscar sede…"
+                error={errors.sedeId?.message}
+                opciones={sedes.map((s): ComboboxOpcion => ({ id: s.id, etiqueta: s.nombre, detalle: s.ciudad }))}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={sedesLoading}
+                vacioMensaje={sedesLoading ? 'Cargando sedes…' : 'No hay sedes disponibles.'}
+              />
+            )}
+          />
         </div>
 
         <div className="grid grid-cols-3 gap-4">

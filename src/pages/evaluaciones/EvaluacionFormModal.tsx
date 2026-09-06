@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, X, ImagePlus, Check } from 'lucide-react';
@@ -7,7 +7,7 @@ import type { ChecklistItem, Inspeccion } from '@/types';
 import type { InspeccionInput } from '@/services/inspeccionesService';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
+import { ComboboxBusqueda, type ComboboxOpcion } from '@/components/ui/ComboboxBusqueda';
 import { Button } from '@/components/ui/Button';
 import { checklistBase } from '@/constants/formOptions';
 import { cn } from '@/utils/cn';
@@ -50,7 +50,7 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
   const inputFileRef = useRef<HTMLInputElement>(null);
   const { data: activos = [], isLoading } = useActivos();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: valoresVacios,
   });
@@ -127,10 +127,22 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
     >
       <fieldset disabled={soloLectura} className="space-y-5">
         <div className="grid grid-cols-3 gap-4">
-          <Select label="Activo evaluado" error={errors.espacioId?.message} {...register('espacioId')} disabled={isLoading}>
-            <option value="">Seleccioná un activo</option>
-            {activos.map((a) => <option key={a.id} value={a.id}>{a.codigo} · {a.nombre}</option>)}
-          </Select>
+          <Controller
+            control={control}
+            name="espacioId"
+            render={({ field }) => (
+              <ComboboxBusqueda
+                label="Activo evaluado"
+                placeholder="Buscar activo…"
+                error={errors.espacioId?.message}
+                opciones={activos.map((a): ComboboxOpcion => ({ id: a.id, etiqueta: `${a.codigo} · ${a.nombre}` }))}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={isLoading}
+                vacioMensaje={isLoading ? 'Cargando activos…' : 'No hay activos disponibles.'}
+              />
+            )}
+          />
           <Input label="Inspector" placeholder="Patricia Núñez" error={errors.inspector?.message} {...register('inspector')} />
           <Input label="Fecha" type="date" error={errors.fecha?.message} {...register('fecha')} />
         </div>

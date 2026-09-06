@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Menu, Search, Sun, Moon, LogOut, User, ChevronDown, GraduationCap } from 'lucide-react';
+import { Menu, Sun, Moon, LogOut, User, ChevronDown, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { NotificationsDropdown } from './NotificationsDropdown';
@@ -34,14 +34,6 @@ export function Topbar() {
       >
         <Menu className="h-5 w-5" />
       </button>
-
-      <div data-tour="buscador" className="relative hidden min-w-0 max-w-lg flex-1 sm:block">
-        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-surface-400" />
-        <input
-          placeholder="Buscar espacios, activos, órdenes…"
-          className="focus-ring h-10 w-full rounded-full border border-transparent bg-surface-100 pl-11 pr-4 text-sm text-surface-700 transition-colors placeholder:text-surface-400 focus:border-primary-300 focus:bg-white dark:focus:border-primary-500/40 dark:focus:bg-surface-900 dark:text-surface-200"
-        />
-      </div>
 
       <div className="ml-auto flex items-center gap-1.5">
         <span className="mr-1 hidden items-center gap-1.5 rounded-full bg-success-50 px-2.5 py-1 text-xs font-medium text-success-700 dark:bg-success-500/10 dark:text-success-500 sm:flex">

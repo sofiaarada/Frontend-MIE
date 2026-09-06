@@ -6,6 +6,7 @@ import type { Mantenimiento } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { ComboboxBusqueda, type ComboboxOpcion } from '@/components/ui/ComboboxBusqueda';
 import { Button } from '@/components/ui/Button';
 import { useActivos } from '@/hooks/useActivos';
 
@@ -81,16 +82,39 @@ export function MantenimientoFormModal({ abierto, onCerrar, onGuardar, item, res
       <div className="space-y-4">
         <Input label="Título" placeholder="Mantenimiento preventivo climatización" error={errors.titulo?.message} {...register('titulo')} />
 
-        <Select label="Activo a intervenir" error={errors.activoId?.message} {...register('activoId')} disabled={isLoading}>
-          <option value="">Seleccioná un activo</option>
-          {activos.map((a) => <option key={a.id} value={a.id}>{a.codigo} · {a.nombre}</option>)}
-        </Select>
+        <Controller
+          control={control}
+          name="activoId"
+          render={({ field }) => (
+            <ComboboxBusqueda
+              label="Activo a intervenir"
+              placeholder="Buscar activo…"
+              error={errors.activoId?.message}
+              opciones={activos.map((a): ComboboxOpcion => ({ id: a.id, etiqueta: `${a.codigo} · ${a.nombre}`, detalle: a.espacioNombre }))}
+              value={field.value}
+              onChange={field.onChange}
+              disabled={isLoading}
+              vacioMensaje={isLoading ? 'Cargando activos…' : 'No hay activos disponibles.'}
+            />
+          )}
+        />
 
         <div className="grid grid-cols-2 gap-4">
-          <Select label="Responsable" error={errors.responsableId?.message} {...register('responsableId')}>
-            <option value="">Sin asignar</option>
-            {responsables.map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
-          </Select>
+          <Controller
+            control={control}
+            name="responsableId"
+            render={({ field }) => (
+              <ComboboxBusqueda
+                label="Responsable"
+                placeholder="Buscar responsable…"
+                error={errors.responsableId?.message}
+                opciones={responsables.map((r): ComboboxOpcion => ({ id: r.id, etiqueta: r.nombre }))}
+value={field.value ?? ''}
+                onChange={field.onChange}
+                vacioMensaje="No hay responsables disponibles."
+              />
+            )}
+          />
           <Input label="Costo estimado (COP)" type="number" min={0} error={errors.costo?.message} {...register('costo')} />
         </div>
 
