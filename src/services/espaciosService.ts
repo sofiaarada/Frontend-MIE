@@ -35,17 +35,17 @@ const ESTADO_A_DB: Record<Espacio['estado'], string> = {
 };
 
 const mapEspacio = (db: EspacioDB): Espacio => ({
-  id: db.id_piso,
+  id: String(db.id_piso),
   codigo: db.codigo_espacio || `ESP-${db.id_piso}`,
   nombre: db.bloque_seccion,
   tipo: db.tipo_espacio || 'Espacio',
-  sedeId: db.id_sede,
+  sedeId: String(db.id_sede),
   piso: String(db.numero_piso ?? ''),
   areaM2: Number(db.area_m2 ?? 0),
   capacidad: Number(db.capacidad ?? 0),
   estado: (db.estado_espacio && DB_A_ESTADO[db.estado_espacio]) || 'BUENO',
   fotoUrl: db.url_foto ?? undefined,
-  ultimaInspeccion: db.fecha_ultima_inspeccion || undefined,
+  ultimaInspeccion: (db.fecha_ultima_inspeccion || '').slice(0, 10) || undefined,
   problemasActivos: 0,
 });
 

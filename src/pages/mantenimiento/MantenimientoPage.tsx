@@ -51,7 +51,7 @@ export function MantenimientoPage() {
         const r = await usuariosService.listar({ pageSize: 1000 });
         return r.data.map((u) => ({ id: u.id, nombre: u.nombre }));
       } catch {
-        return usuario ? [{ id: usuario.id, nombre: usuario.nombre }] : [];
+        return usuario ? [{ id: String(usuario.id), nombre: usuario.nombre }] : [];
       }
     },
   });

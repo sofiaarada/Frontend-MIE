@@ -69,9 +69,9 @@ async function activoNombreMap(): Promise<Record<string, string>> {
 function mapInspeccion(db: InspeccionDB, activos: Record<string, string>): Inspeccion {
   const estado = DB_A_ESTADO[db.estado_evaluado] ?? 'BUENO';
   return {
-    id: db.id_inspeccion,
-    espacioId: db.id_activo,
-    espacioNombre: activos[db.id_activo] ?? db.ubicacion_exacta ?? `Activo #${db.id_activo}`,
+    id: String(db.id_inspeccion),
+    espacioId: String(db.id_activo),
+    espacioNombre: activos[String(db.id_activo)] ?? db.ubicacion_exacta ?? `Activo #${db.id_activo}`,
     inspector: 'Por asignar',
     fecha: (db.fecha_inspeccion || '').split('T')[0],
     puntajeGlobal: PUNTAJE_ESTADO[estado],

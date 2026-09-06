@@ -37,12 +37,12 @@ async function espaciosMap(): Promise<Record<string, string>> {
 }
 
 const map = (a: ActivoDB, espacios: Record<string, string>): Activo => ({
-  id: a.id_activo,
+  id: String(a.id_activo),
   codigo: a.codigo_inventario,
   nombre: a.nombre_activo,
   categoria: categories[a.id_categoria] ?? 'Sin categoría',
-  espacioId: a.id_piso,
-  espacioNombre: espacios[a.id_piso] ?? `Espacio ${a.id_piso}`,
+  espacioId: String(a.id_piso),
+  espacioNombre: espacios[String(a.id_piso)] ?? `Espacio ${a.id_piso}`,
   cantidad: toNumber(a.cantidad, 1),
   estado: stateFromDb[a.estado_activo],
   responsable: a.marca ?? 'Por asignar',

@@ -10,7 +10,7 @@ interface SedeDB {
 
 function mapSede(db: SedeDB) {
   return {
-    id: db.id_sede,
+    id: String(db.id_sede),
     nombre: db.nombre_sede,
     direccion: db.direccion ?? '',
     ciudad: db.ciudad ?? '',

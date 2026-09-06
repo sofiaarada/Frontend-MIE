@@ -10,6 +10,7 @@ import { ComboboxBusqueda, type ComboboxOpcion } from '@/components/ui/ComboboxB
 import { Button } from '@/components/ui/Button';
 import { categoriasActivo } from '@/constants/formOptions';
 import { useEspacios } from '@/hooks/useEspacios';
+import { aplicarMascaraMoneda, formatearNumeroMoneda, textoMonedaANumero } from '@/utils/format';
 
 const schema = z.object({
   nombre: z.string().min(2, 'Ingresá un nombre.'),
@@ -40,20 +41,32 @@ const valoresVacios: ActivoFormValues = {
 
 export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: ActivoFormModalProps) {
   const [guardando, setGuardando] = useState(false);
+  const [valorTexto, setValorTexto] = useState('');
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ActivoFormValues>({
     resolver: zodResolver(schema),
     defaultValues: valoresVacios,
   });
   const { data: espacios = [], isLoading } = useEspacios();
 
+  const alCambiarValor = (raw: string, field: { onChange: (v: number) => void }) => {
+    const texto = aplicarMascaraMoneda(raw);
+    setValorTexto(texto);
+    field.onChange(textoMonedaANumero(texto) ?? 0);
+  };
+
   useEffect(() => {
-    if (abierto) reset(activo ? { ...activo } : valoresVacios);
+    if (abierto) {
+      const valorInicial = activo ? formatearNumeroMoneda(activo.valor) : '';
+      setValorTexto(valorInicial);
+      reset(activo ? { ...activo, valor: activo.valor } : valoresVacios);
+    }
   }, [abierto, activo, reset]);
 
   const onSubmit = async (valores: ActivoFormValues) => {
     setGuardando(true);
     try {
-      await onGuardar(valores);
+      const n = textoMonedaANumero(valorTexto);
+      await onGuardar({ ...valores, valor: n ?? 0 });
       onCerrar();
     } finally {
       setGuardando(false);
@@ -120,7 +133,21 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Valor (COP)" type="number" min={0} error={errors.valor?.message} {...register('valor')} />
+          <Controller
+            control={control}
+            name="valor"
+            render={({ field }) => (
+              <Input
+                label="Valor (COP)"
+                inputMode="decimal"
+                autoComplete="off"
+                placeholder="Ej.: 1.500.000,50"
+                error={errors.valor?.message}
+                value={valorTexto}
+                onChange={(e) => alCambiarValor(e.target.value, { onChange: field.onChange })}
+              />
+            )}
+          />
           <Input label="Fecha de adquisición" type="date" error={errors.fechaAdquisicion?.message} {...register('fechaAdquisicion')} />
         </div>
 

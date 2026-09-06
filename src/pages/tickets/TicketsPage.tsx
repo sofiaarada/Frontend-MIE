@@ -4,6 +4,8 @@ import { LayoutGrid, List, Search, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Ticket, EstadoTicket } from '@/types';
 import { ticketsService } from '@/services/ticketsService';
+import { usuariosService } from '@/services/usuariosService';
+import { useAuthStore } from '@/store/authStore';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
@@ -13,12 +15,13 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { cn } from '@/utils/cn';
 import { TicketsKanban } from './TicketsKanban';
 import { TicketsTable } from './TicketsTable';
-import { TicketFormModal, type TicketFormValues } from './TicketFormModal';
+import { TicketFormModal, type TicketFormValues, type ResponsableOpcion } from './TicketFormModal';
 
 type FiltroPrioridad = 'TODAS' | Ticket['prioridad'];
 
 export function TicketsPage() {
   const queryClient = useQueryClient();
+  const usuario = useAuthStore((s) => s.session?.usuario);
   const [vista, setVista] = useState<'kanban' | 'tabla'>('kanban');
   const [busqueda, setBusqueda] = useState('');
   const [prioridad, setPrioridad] = useState<FiltroPrioridad>('TODAS');
@@ -31,6 +34,18 @@ export function TicketsPage() {
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ['tickets', { busqueda, prioridad }],
     queryFn: () => ticketsService.listar({ busqueda, prioridad }),
+  });
+
+  const { data: responsables = [] } = useQuery<ResponsableOpcion[]>({
+    queryKey: ['responsables'],
+    queryFn: async () => {
+      try {
+        const r = await usuariosService.listar({ pageSize: 1000 });
+        return r.data.map((u) => ({ id: u.id, nombre: u.nombre }));
+      } catch {
+        return usuario ? [{ id: String(usuario.id), nombre: usuario.nombre }] : [];
+      }
+    },
   });
 
   const invalidar = () => queryClient.invalidateQueries({ queryKey: ['tickets'] });
@@ -146,6 +161,7 @@ export function TicketsPage() {
         onCerrar={() => setModalAbierto(false)}
         onGuardar={guardar}
         ticket={ticketSeleccionado}
+        responsables={responsables}
       />
 
       <ConfirmDialog

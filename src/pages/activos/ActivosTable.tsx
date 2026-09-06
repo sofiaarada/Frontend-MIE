@@ -2,7 +2,7 @@ import { Pencil, Trash2, Boxes } from 'lucide-react';
 import type { Activo } from '@/types';
 import { BadgeEstado } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { formatearMoneda } from '@/utils/format';
+import { formatearFecha, formatearMoneda } from '@/utils/format';
 
 interface ActivosTableProps {
   activos: Activo[];
@@ -25,6 +25,8 @@ export function ActivosTable({ activos, onEditar, onEliminar }: ActivosTableProp
             <th className="px-3 py-3 font-medium">Categoría</th>
             <th className="px-3 py-3 font-medium">Espacio</th>
             <th className="px-3 py-3 font-medium">Cant.</th>
+            <th className="px-3 py-3 font-medium">Responsable</th>
+            <th className="px-3 py-3 font-medium">Adq.</th>
             <th className="px-3 py-3 font-medium">Estado</th>
             <th className="px-3 py-3 font-medium">Valor (COP)</th>
             <th className="px-3 py-3 font-medium text-right">Acciones</th>
@@ -34,13 +36,12 @@ export function ActivosTable({ activos, onEditar, onEliminar }: ActivosTableProp
           {activos.map((a) => (
             <tr key={a.id} className="border-b border-surface-50 last:border-0 hover:bg-surface-50 dark:border-surface-800/60 dark:hover:bg-surface-800/40">
               <td className="px-3 py-3 text-xs text-surface-400">{a.codigo}</td>
-              <td className="px-3 py-3">
-                <p className="font-medium text-surface-800 dark:text-surface-100">{a.nombre}</p>
-                <p className="text-xs text-surface-400">Resp. {a.responsable}</p>
-              </td>
+              <td className="px-3 py-3 font-medium text-surface-800 dark:text-surface-100">{a.nombre}</td>
               <td className="px-3 py-3 text-surface-500 dark:text-surface-400">{a.categoria}</td>
               <td className="px-3 py-3 text-surface-500 dark:text-surface-400">{a.espacioNombre}</td>
               <td className="px-3 py-3 text-surface-500 dark:text-surface-400">{a.cantidad}</td>
+              <td className="px-3 py-3 text-surface-500 dark:text-surface-400">{a.responsable}</td>
+              <td className="px-3 py-3 text-surface-500 dark:text-surface-400">{formatearFecha(a.fechaAdquisicion)}</td>
               <td className="px-3 py-3"><BadgeEstado estado={a.estado} /></td>
               <td className="px-3 py-3 text-surface-500 dark:text-surface-400">{formatearMoneda(a.valor)}</td>
               <td className="px-3 py-3">

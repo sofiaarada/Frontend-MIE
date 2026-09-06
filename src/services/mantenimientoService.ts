@@ -63,7 +63,7 @@ async function activoNombreMap(): Promise<Record<string, string>> {
 async function materialesDe(id: string): Promise<MaterialDB[]> {
   try {
     const r = await resourcesApi.listar<MaterialDB>('materiales_mantenimiento', { id_mantenimiento: id, pageSize: 100 });
-    return r.data;
+    return r.data.sort((a, b) => (Number(a.id_material) || 0) - (Number(b.id_material) || 0));
   } catch {
     return [];
   }
@@ -73,11 +73,11 @@ async function responsablesMap(): Promise<Record<string, string>> {
   try {
     const r = await usuariosService.listar({ pageSize: 1000 });
     const map: Record<string, string> = {};
-    r.data.forEach((u) => { map[u.id] = u.nombre; });
+    r.data.forEach((u) => { map[String(u.id)] = u.nombre; });
     return map;
   } catch {
     const usuario = useAuthStore.getState().session?.usuario;
-    return usuario ? { [usuario.id]: usuario.nombre } : {};
+    return usuario ? { [String(usuario.id)]: usuario.nombre } : {};
   }
 }
 
@@ -86,13 +86,13 @@ function mapMantenimiento(db: MantenimientoDB, materiales: MaterialDB[], activos
   return {
     id: db.id_mantenimiento,
     ticketId: db.id_ticket ?? undefined,
-    titulo: db.resumen_trabajo || activos[db.id_activo] || `Mantenimiento #${db.id_mantenimiento}`,
-    responsable: responsables[db.id_tecnico] ?? 'Por asignar',
+    titulo: db.resumen_trabajo || activos[String(db.id_activo)] || `Mantenimiento #${db.id_mantenimiento}`,
+    responsable: responsables[String(db.id_tecnico)] ?? 'Por asignar',
     materiales: materiales.map((m) => m.nombre_material),
     costo: Number(db.costo_estimado ?? 0) || costoMateriales,
     fechaProgramada: (db.fecha_programada || '').split('T')[0],
     estado: DB_A_ESTADO[db.estado_mantenimiento as string] ?? 'PENDIENTE',
-    activoId: db.id_activo,
+    activoId: String(db.id_activo),
   };
 }
 

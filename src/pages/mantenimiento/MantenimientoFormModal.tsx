@@ -9,6 +9,7 @@ import { Select } from '@/components/ui/Select';
 import { ComboboxBusqueda, type ComboboxOpcion } from '@/components/ui/ComboboxBusqueda';
 import { Button } from '@/components/ui/Button';
 import { useActivos } from '@/hooks/useActivos';
+import { aplicarMascaraMoneda, formatearNumeroMoneda, textoMonedaANumero } from '@/utils/format';
 
 const schema = z.object({
   titulo: z.string().min(3, 'Ingresá un título.'),
@@ -40,6 +41,7 @@ const valoresVacios: MantenimientoFormValues = {
 
 export function MantenimientoFormModal({ abierto, onCerrar, onGuardar, item, responsables }: MantenimientoFormModalProps) {
   const [guardando, setGuardando] = useState(false);
+  const [costoTexto, setCostoTexto] = useState('');
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<MantenimientoFormValues>({
     resolver: zodResolver(schema),
     defaultValues: valoresVacios,
@@ -48,16 +50,24 @@ export function MantenimientoFormModal({ abierto, onCerrar, onGuardar, item, res
 
   useEffect(() => {
     if (abierto) {
+      setCostoTexto(item ? formatearNumeroMoneda(item.costo) : '');
       reset(item
         ? { titulo: item.titulo, activoId: item.activoId ?? '', fechaProgramada: item.fechaProgramada, estado: item.estado, responsableId: '', materiales: item.materiales.join(', '), costo: item.costo }
         : valoresVacios);
     }
   }, [abierto, item, reset]);
 
+  const alCambiarCosto = (raw: string, onChange: (v: number) => void) => {
+    const texto = aplicarMascaraMoneda(raw);
+    setCostoTexto(texto);
+    onChange(textoMonedaANumero(texto) ?? 0);
+  };
+
   const onSubmit = async (valores: MantenimientoFormValues) => {
     setGuardando(true);
     try {
-      await onGuardar(valores);
+      const n = textoMonedaANumero(costoTexto);
+      await onGuardar({ ...valores, costo: n ?? 0 });
       onCerrar();
     } finally {
       setGuardando(false);
@@ -115,7 +125,21 @@ value={field.value ?? ''}
               />
             )}
           />
-          <Input label="Costo estimado (COP)" type="number" min={0} error={errors.costo?.message} {...register('costo')} />
+          <Controller
+              control={control}
+              name="costo"
+              render={({ field }) => (
+                <Input
+                  label="Costo estimado (COP)"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  placeholder="1.500.000,00"
+                  error={errors.costo?.message}
+                  value={costoTexto}
+                  onChange={(e) => alCambiarCosto(e.target.value, field.onChange)}
+                />
+              )}
+            />
         </div>
 
         <Input label="Materiales" placeholder="Pintura, brocas, sellador…" error={errors.materiales?.message} {...register('materiales')} />

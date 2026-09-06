@@ -16,6 +16,7 @@ const schema = z.object({
   titulo: z.string().min(3, 'Ingresá un título.'),
   descripcion: z.string().min(3, 'Ingresá una descripción.'),
   activoId: z.string().min(1, 'Seleccioná un activo.'),
+  responsableId: z.string().optional(),
   prioridad: z.enum(['BAJA', 'MEDIA', 'ALTA', 'URGENTE']),
   estado: z.enum(['PENDIENTE', 'EN_PROCESO', 'FINALIZADO', 'CANCELADO']),
   fechaVencimiento: z.string().optional(),
@@ -23,18 +24,21 @@ const schema = z.object({
 
 export type TicketFormValues = z.infer<typeof schema>;
 
+export interface ResponsableOpcion { id: string; nombre: string; }
+
 interface TicketFormModalProps {
   abierto: boolean;
   onCerrar: () => void;
   onGuardar: (valores: TicketFormValues) => Promise<void>;
   ticket?: Ticket | null;
+  responsables: ResponsableOpcion[];
 }
 
 const valoresVacios: TicketFormValues = {
-  titulo: '', descripcion: '', activoId: '', prioridad: 'MEDIA', estado: 'PENDIENTE', fechaVencimiento: '',
+  titulo: '', descripcion: '', activoId: '', responsableId: '', prioridad: 'MEDIA', estado: 'PENDIENTE', fechaVencimiento: '',
 };
 
-export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: TicketFormModalProps) {
+export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket, responsables }: TicketFormModalProps) {
   const [guardando, setGuardando] = useState(false);
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<TicketFormValues>({
     resolver: zodResolver(schema),
@@ -44,7 +48,7 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
 
   useEffect(() => {
     if (abierto) {
-      reset(ticket ? { titulo: ticket.titulo, descripcion: ticket.descripcion, activoId: ticket.activoId ?? '', prioridad: ticket.prioridad, estado: ticket.estado, fechaVencimiento: ticket.fechaVencimiento || '' } : valoresVacios);
+      reset(ticket ? { titulo: ticket.titulo, descripcion: ticket.descripcion, activoId: ticket.activoId ?? '', responsableId: ticket.responsableId ?? '', prioridad: ticket.prioridad, estado: ticket.estado, fechaVencimiento: ticket.fechaVencimiento || '' } : valoresVacios);
     }
   }, [abierto, ticket, reset]);
 
@@ -105,6 +109,21 @@ export function TicketFormModal({ abierto, onCerrar, onGuardar, ticket }: Ticket
         />
 
         <div className="grid grid-cols-2 gap-4">
+          <Controller
+            control={control}
+            name="responsableId"
+            render={({ field }) => (
+              <ComboboxBusqueda
+                label="Responsable"
+                placeholder="Buscar responsable…"
+                error={errors.responsableId?.message}
+                opciones={responsables.map((r): ComboboxOpcion => ({ id: r.id, etiqueta: r.nombre }))}
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                vacioMensaje="No hay responsables disponibles."
+              />
+            )}
+          />
           <Input label="Vence" type="date" error={errors.fechaVencimiento?.message} {...register('fechaVencimiento')} />
           <Controller
             control={control}

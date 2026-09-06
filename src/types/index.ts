@@ -104,6 +104,7 @@ export interface Ticket {
   fechaCreacion: string;
   fechaVencimiento: string;
   activoId?: string;
+  responsableId?: string;
 }
 
 export interface Mantenimiento {
