@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { AuthSession } from '@/types';
 import { authService } from '@/services/authService';
+import { useTourStore } from './tourStore';
 
 interface AuthState {
   session: AuthSession | null;
@@ -14,7 +15,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       session: null,
       cargando: false,
       error: null,
@@ -23,6 +24,9 @@ export const useAuthStore = create<AuthState>()(
         try {
           const session = await authService.login({ correo, password, recordarme });
           set({ session, cargando: false });
+          // Solo disparar reset para nuevo tutorial en login real,
+          // no en cada navegación para evitar redirecciones inesperadas
+          // useTourStore.getState().resetParaNuevoLogin();
         } catch (err) {
           const mensaje = err instanceof Error ? err.message : 'No se pudo iniciar sesión.';
           set({ error: mensaje, cargando: false });

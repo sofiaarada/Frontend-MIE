@@ -112,8 +112,13 @@ function buscarVisible(selector: string): HTMLElement | null {
 
 export function OnboardingTour() {
   const abierto = useTourStore((s) => s.abierto);
+  const visto = useTourStore((s) => s.visto);
   const cerrarTour = useTourStore((s) => s.cerrarTour);
+  const marcarComoVisto = useTourStore((s) => s.marcarComoVisto);
   const setSidebarMobileAbierto = useUiStore((s) => s.setSidebarMobileAbierto);
+
+  // Ya no auto-abrir tutorial basándose en pendienteTrasLogin
+  // El mecanismo "mostrar una vez" ya está gestionado mediante el campo 'visto' en localStorage
 
   const [indice, setIndice] = useState(0);
   const [direccion, setDireccion] = useState(1);
@@ -234,11 +239,14 @@ export function OnboardingTour() {
   const finalizar = useCallback(
     (completo: boolean) => {
       cerrarTour();
+      if (completo) {
+        marcarComoVisto();
+        toast.success('Ya podés explorar el sistema.');
+      }
       setIndice(0);
       setDireccion(1);
-      if (completo) toast.success('Ya podés explorar el sistema.');
     },
-    [cerrarTour]
+    [cerrarTour, marcarComoVisto]
   );
 
   // Teclado: Esc omite, flechas navegan.
@@ -366,7 +374,7 @@ export function OnboardingTour() {
           {indice === 0 && (
             <button
               type="button"
-              onClick={() => finalizar(false)}
+              onClick={() => { marcarComoVisto(); finalizar(false); }}
               className="focus-ring mt-3 block w-full text-center text-xs font-medium text-surface-400 hover:text-surface-600 dark:hover:text-surface-200"
             >
               Omitir, ya conozco el sistema

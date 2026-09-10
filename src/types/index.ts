@@ -1,7 +1,7 @@
 
 
 /** Los roles se administran desde la tabla `roles`; no se deben codificar en el cliente. */
-export type Role = string;
+export type Role = 'Administrador' | 'Rector' | 'Coordinador' | 'Supervisor' | 'Técnico' | string;
 
 export type EstadoInfraestructura = 'BUENO' | 'REGULAR' | 'DETERIORADO' | 'CRITICO';
 

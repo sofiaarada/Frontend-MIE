@@ -6,8 +6,12 @@ interface TourState {
   visto: boolean;
   /** El tour está activo en pantalla. */
   abierto: boolean;
+  /** Si se debe mostrar el tutorial tras login (se resetea en logout). */
+  pendienteTrasLogin: boolean;
   abrirTour: () => void;
   cerrarTour: () => void;
+  marcarComoVisto: () => void;
+  resetParaNuevoLogin: () => void;
 }
 
 export const useTourStore = create<TourState>()(
@@ -15,9 +19,12 @@ export const useTourStore = create<TourState>()(
     (set) => ({
       visto: false,
       abierto: false,
+      pendienteTrasLogin: false,
       abrirTour: () => set({ abierto: true }),
       
       cerrarTour: () => set({ abierto: false, visto: true }),
+      
+      marcarComoVisto: () => set({ visto: true }),
     }),
     {
       name: 'mie-onboarding',

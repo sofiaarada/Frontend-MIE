@@ -1,7 +1,11 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { getRoleLevel } from '@/utils/permissions';
 
 export function AdminRoute() {
-  const role = useAuthStore((s) => s.session?.usuario.rol);
-  return role === 'Administrador' ? <Outlet /> : <Navigate to="/dashboard" replace />;
+  const session = useAuthStore((s) => s.session);
+  if (!session || getRoleLevel(session.usuario.rol) < getRoleLevel('administrador')) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return <Outlet />;
 }

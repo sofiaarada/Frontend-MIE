@@ -61,3 +61,67 @@ export function formatearCelda(valor: unknown, tipo?: string): string {
       return String(valor);
   }
 }
+
+/** Genera el siguiente código automático en formato LETRA-NÚMERO (ej: A-101, B-202).
+ * La letra es A-Z, el número tiene máximo 3 dígitos (1-999). */
+export function generarSiguienteCodigo(existentes: string[]): string {
+  const regex = /^([A-Z])-(\d{1,3})$/;
+  let maxPorLetra: Record<string, number> = {};
+  
+  for (const cod of existentes) {
+    const match = cod.match(regex);
+    if (match) {
+      const letra = match[1];
+      const num = parseInt(match[2], 10);
+      if (!maxPorLetra[letra] || num > maxPorLetra[letra]) {
+        maxPorLetra[letra] = num;
+      }
+    }
+  }
+  
+  // Encontrar la primera letra disponible o la que tenga menor número
+  const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  for (const letra of letras) {
+    const actual = maxPorLetra[letra] || 0;
+    if (actual < 999) {
+      return `${letra}-${String(actual + 1).padStart(3, '0')}`;
+    }
+  }
+  
+  // Fallback si se agotaron todas las combinaciones
+  return `A-${String((maxPorLetra['A'] || 0) + 1).padStart(3, '0')}`;
+}
+
+/** Valida que un código tenga formato correcto: LETRA-NÚMERO (máx 3 dígitos) */
+export function validarFormatoCodigo(codigo: string): boolean {
+  const regex = /^[A-Z]-\d{1,3}$/;
+  if (!regex.test(codigo)) return false;
+  const num = parseInt(codigo.split('-')[1], 10);
+  return num >= 1 && num <= 999;
+}
+
+/** Valida que una fecha no sea futura (para fechas de adquisición/inspección) */
+export function validarFechaNoFutura(fecha: string): boolean {
+  if (!fecha) return false;
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const fechaIngresada = new Date(fecha + 'T00:00:00');
+  return fechaIngresada <= hoy;
+}
+
+/** Valida relación área vs capacidad: área > capacidad y capacidad ~60-70% del área */
+export function validarAreaCapacidad(areaM2: number, capacidad: number): { valido: boolean; mensaje?: string } {
+  if (areaM2 <= 0) return { valido: false, mensaje: 'El área debe ser mayor a 0.' };
+  if (capacidad < 0) return { valido: false, mensaje: 'La capacidad no puede ser negativa.' };
+  if (areaM2 <= capacidad) return { valido: false, mensaje: 'El área (m²) debe ser mayor a la capacidad.' };
+  
+  const porcentaje = (capacidad / areaM2) * 100;
+  if (porcentaje < 30 || porcentaje > 90) {
+    return { 
+      valido: false, 
+      mensaje: `La capacidad debería representar entre 30% y 90% del área (actual: ${porcentaje.toFixed(1)}%). Rango típico: 60-70%.` 
+    };
+  }
+  
+  return { valido: true };
+}

@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ImagePlus, X } from 'lucide-react';
+import { ImagePlus, X, Loader2 } from 'lucide-react';
 import type { Espacio } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
@@ -15,18 +15,23 @@ import { useSedes } from '@/hooks/useSedes';
 import { uploadService } from '@/services/uploadService';
 import { urlImagen } from '@/utils/imagen';
 import { toast } from 'sonner';
+import { generarSiguienteCodigo, validarFormatoCodigo, validarFechaNoFutura, validarAreaCapacidad } from '@/utils/format';
+import { resourcesApi } from '@/services/api/resources';
 
 const schema = z.object({
   nombre: z.string().min(2, 'Ingresá un nombre.'),
-  codigo: z.string().min(1, 'Ingresá un código.'),
+  codigo: z.string().min(1, 'Ingresá un código.').refine(validarFormatoCodigo, 'Formato inválido. Use: A-101, B-202 (máx 3 dígitos).'),
   tipo: z.string().min(1, 'Seleccioná un tipo.'),
   sedeId: z.string().min(1, 'Seleccioná una sede.'),
   piso: z.string().min(1, 'Ingresá el piso o ubicación.'),
   areaM2: z.coerce.number().min(1, 'El área debe ser mayor a 0.'),
   capacidad: z.coerce.number().min(0, 'La capacidad no puede ser negativa.'),
   estado: z.enum(['BUENO', 'REGULAR', 'DETERIORADO', 'CRITICO']),
-  ultimaInspeccion: z.string().optional(),
+  ultimaInspeccion: z.string().optional().refine((val) => !val || validarFechaNoFutura(val), 'La fecha no puede ser futura.'),
   fotoUrl: z.string().optional(),
+}).refine((data) => validarAreaCapacidad(data.areaM2, data.capacidad).valido, {
+  message: 'El área debe ser mayor a la capacidad y la capacidad debe ser 30-90% del área.',
+  path: ['capacidad'],
 });
 
 export type EspacioFormValues = z.infer<typeof schema>;
@@ -44,9 +49,17 @@ const valoresVacios: EspacioFormValues = {
   areaM2: 0, capacidad: 0, estado: 'BUENO', ultimaInspeccion: '', fotoUrl: '',
 };
 
+interface PisoExistente {
+  id: string;
+  numero: number;
+  bloque: string;
+}
+
 export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLectura }: EspacioFormModalProps) {
   const [guardando, setGuardando] = useState(false);
   const [arrastrando, setArrastrando] = useState(false);
+  const [pisosExistentes, setPisosExistentes] = useState<PisoExistente[]>([]);
+  const [cargandoPisos, setCargandoPisos] = useState(false);
   const inputFileRef = useRef<HTMLInputElement>(null);
   const { data: sedes = [], isLoading: sedesLoading } = useSedes();
 
@@ -56,10 +69,44 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
   });
 
   const fotoUrl = watch('fotoUrl');
+  const sedeId = watch('sedeId');
+  const tipo = watch('tipo');
+
+  const cargarPisosExistentes = useCallback(async (sedeIdVal: string) => {
+    if (!sedeIdVal) return;
+    setCargandoPisos(true);
+    try {
+      const result = await resourcesApi.listar<{ id_piso: string; numero_piso: number; bloque_seccion: string }>('pisos_espacios', { 
+        pageSize: 1000, 
+        id_sede: sedeIdVal 
+      });
+      setPisosExistentes(result.data.map(p => ({ id: String(p.id_piso), numero: p.numero_piso, bloque: p.bloque_seccion })));
+    } catch (error) {
+      console.error('Error cargando pisos:', error);
+      setPisosExistentes([]);
+    } finally {
+      setCargandoPisos(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (sedeId) {
+      cargarPisosExistentes(sedeId);
+    } else {
+      setPisosExistentes([]);
+    }
+  }, [sedeId, cargarPisosExistentes]);
 
   useEffect(() => {
     if (abierto) {
-      reset(espacio ? { ...espacio, ultimaInspeccion: espacio.ultimaInspeccion ?? '', fotoUrl: espacio.fotoUrl ?? '' } : valoresVacios);
+      if (espacio) {
+        reset({ ...espacio, ultimaInspeccion: espacio.ultimaInspeccion ?? '', fotoUrl: espacio.fotoUrl ?? '' });
+      } else {
+        // Generar código automático solo para nuevo espacio
+        const codigosExistentes = []; // Se podría cargar de la API si se desea
+        const codigoSugerido = generarSiguienteCodigo(codigosExistentes);
+        reset({ ...valoresVacios, codigo: codigoSugerido });
+      }
     }
   }, [abierto, espacio, reset]);
 
@@ -148,7 +195,15 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
 
         <div className="grid grid-cols-2 gap-4">
           <Input label="Nombre" placeholder="Aula 101" error={errors.nombre?.message} {...register('nombre')} />
-          <Input label="Código" placeholder="A-101" error={errors.codigo?.message} {...register('codigo')} />
+          <Input 
+            label="Código" 
+            placeholder="A-101" 
+            error={errors.codigo?.message} 
+            {...register('codigo')} 
+            readOnly={!espacio && !soloLectura}
+            title={!espacio && !soloLectura ? 'El código se genera automáticamente' : ''}
+            className={!espacio && !soloLectura ? 'bg-surface-50 dark:bg-surface-800/60' : ''}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -185,8 +240,27 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          <Input label="Piso / ubicación" placeholder="1er Piso" error={errors.piso?.message} {...register('piso')} />
-          <Input label="Área (m²)" type="number" min={0} error={errors.areaM2?.message} {...register('areaM2')} />
+          <Controller
+            control={control}
+            name="piso"
+            render={({ field }) => (
+              <ComboboxBusqueda
+                label="Piso / ubicación"
+                placeholder="Seleccionar piso…"
+                error={errors.piso?.message}
+                opciones={pisosExistentes.map((p): ComboboxOpcion => ({ 
+                  id: String(p.numero), 
+                  etiqueta: `${p.numero}° Piso · ${p.bloque}`, 
+                  detalle: p.bloque 
+                }))}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={cargandoPisos || !sedeId}
+                vacioMensaje={cargandoPisos ? 'Cargando pisos…' : !sedeId ? 'Primero seleccioná una sede' : 'No hay pisos registrados en esta sede'}
+              />
+            )}
+          />
+          <Input label="Área (m²)" type="number" min={1} error={errors.areaM2?.message} {...register('areaM2')} />
           <Input label="Capacidad" type="number" min={0} error={errors.capacidad?.message} {...register('capacidad')} />
         </div>
 

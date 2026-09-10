@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useEffect, useState, useCallback } from 'react';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Activo } from '@/types';
@@ -10,18 +10,20 @@ import { ComboboxBusqueda, type ComboboxOpcion } from '@/components/ui/ComboboxB
 import { Button } from '@/components/ui/Button';
 import { categoriasActivo } from '@/constants/formOptions';
 import { useEspacios } from '@/hooks/useEspacios';
+import { resourcesApi } from '@/services/api/resources';
 import { aplicarMascaraMoneda, formatearNumeroMoneda, textoMonedaANumero } from '@/utils/format';
+import { generarSiguienteCodigo, validarFormatoCodigo, validarFechaNoFutura } from '@/utils/format';
 
 const schema = z.object({
   nombre: z.string().min(2, 'Ingresá un nombre.'),
-  codigo: z.string().min(1, 'Ingresá un código.'),
+  codigo: z.string().min(1, 'Ingresá un código.').refine(validarFormatoCodigo, 'Formato inválido. Use: A-101, B-202 (máx 3 dígitos).'),
   categoria: z.string().min(1, 'Seleccioná una categoría.'),
   espacioId: z.string().min(1, 'Seleccioná un espacio.'),
   cantidad: z.coerce.number().min(1, 'La cantidad debe ser al menos 1.'),
   responsable: z.string().min(2, 'Ingresá el responsable.'),
   valor: z.coerce.number().min(0, 'El valor no puede ser negativo.'),
   estado: z.enum(['BUENO', 'REGULAR', 'DETERIORADO', 'CRITICO']),
-  fechaAdquisicion: z.string().min(1, 'Ingresá la fecha de adquisición.'),
+  fechaAdquisicion: z.string().min(1, 'Ingresá la fecha de adquisición.').refine(validarFechaNoFutura, 'La fecha no puede ser futura.'),
 });
 
 export type ActivoFormValues = z.infer<typeof schema>;
@@ -39,14 +41,48 @@ const valoresVacios: ActivoFormValues = {
   fechaAdquisicion: new Date().toISOString().slice(0, 10),
 };
 
+interface ResponsableOpcion {
+  id: string;
+  nombre: string;
+  rol: string;
+}
+
 export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: ActivoFormModalProps) {
   const [guardando, setGuardando] = useState(false);
   const [valorTexto, setValorTexto] = useState('');
+  const [responsables, setResponsables] = useState<ResponsableOpcion[]>([]);
+  const [cargandoResponsables, setCargandoResponsables] = useState(false);
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<ActivoFormValues>({
     resolver: zodResolver(schema),
     defaultValues: valoresVacios,
   });
-  const { data: espacios = [], isLoading } = useEspacios();
+  const { data: espacios = [], isLoading: espaciosLoading } = useEspacios();
+
+  const cargarResponsables = useCallback(async () => {
+    setCargandoResponsables(true);
+    try {
+      const result = await recursosApi.listar<{ id_usuario: string; nombres: string; apellidos: string; nombre_rol: string }>('usuarios', { 
+        pageSize: 1000,
+        estado: 'Activo'
+      });
+      // Filtrar solo roles válidos para ser responsables: Inspector, Técnico, Coordinador, Rector, Administrador
+      const rolesValidos = ['Inspector', 'Técnico', 'Coordinador', 'Rector', 'Administrador'];
+      setResponsables(
+        result.data
+          .filter(u => rolesValidos.includes(u.nombre_rol))
+          .map(u => ({ id: String(u.id_usuario), nombre: `${u.nombres} ${u.apellidos}`, rol: u.nombre_rol }))
+      );
+    } catch (error) {
+      console.error('Error cargando responsables:', error);
+      setResponsables([]);
+    } finally {
+      setCargandoResponsables(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    cargarResponsables();
+  }, [cargarResponsables]);
 
   const alCambiarValor = (raw: string, field: { onChange: (v: number) => void }) => {
     const texto = aplicarMascaraMoneda(raw);
@@ -58,7 +94,14 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
     if (abierto) {
       const valorInicial = activo ? formatearNumeroMoneda(activo.valor) : '';
       setValorTexto(valorInicial);
-      reset(activo ? { ...activo, valor: activo.valor } : valoresVacios);
+      if (activo) {
+        reset({ ...activo, valor: activo.valor });
+      } else {
+        // Generar código automático solo para nuevo activo
+        const codigosExistentes = []; // Se podría cargar de la API
+        const codigoSugerido = generarSiguienteCodigo(codigosExistentes);
+        reset({ ...valoresVacios, codigo: codigoSugerido });
+      }
     }
   }, [abierto, activo, reset]);
 
@@ -91,7 +134,15 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <Input label="Nombre" placeholder="Proyector Epson EB" error={errors.nombre?.message} {...register('nombre')} />
-          <Input label="Código" placeholder="TEC-0071" error={errors.codigo?.message} {...register('codigo')} />
+          <Input 
+            label="Código" 
+            placeholder="TEC-0071" 
+            error={errors.codigo?.message} 
+            {...register('codigo')} 
+            readOnly={!activo}
+            title={!activo ? 'El código se genera automáticamente' : ''}
+            className={!activo ? 'bg-surface-50 dark:bg-surface-800/60' : ''}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -114,14 +165,14 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
             name="espacioId"
             render={({ field }) => (
               <ComboboxBusqueda
-                label="Espacio"
+                label="Espacio (Aula real)"
                 placeholder="Buscar espacio…"
                 error={errors.espacioId?.message}
                 opciones={espacios.map((e): ComboboxOpcion => ({ id: e.id, etiqueta: `${e.codigo} · ${e.nombre}`, detalle: e.tipo }))}
                 value={field.value}
                 onChange={field.onChange}
-                disabled={isLoading}
-                vacioMensaje={isLoading ? 'Cargando espacios…' : 'No hay espacios disponibles.'}
+                disabled={espaciosLoading}
+                vacioMensaje={espaciosLoading ? 'Cargando espacios…' : 'No hay espacios disponibles.'}
               />
             )}
           />
@@ -129,7 +180,22 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
 
         <div className="grid grid-cols-2 gap-4">
           <Input label="Cantidad" type="number" min={1} error={errors.cantidad?.message} {...register('cantidad')} />
-          <Input label="Responsable" placeholder="Patricia Núñez" error={errors.responsable?.message} {...register('responsable')} />
+          <Controller
+            control={control}
+            name="responsable"
+            render={({ field }) => (
+              <ComboboxBusqueda
+                label="Responsable (rol válido)"
+                placeholder="Buscar responsable…"
+                error={errors.responsable?.message}
+                opciones={responsables.map((r): ComboboxOpcion => ({ id: r.nombre, etiqueta: r.nombre, detalle: r.rol }))}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={cargandoResponsables}
+                vacioMensaje={cargandoResponsables ? 'Cargando responsables…' : 'No hay responsables con rol válido'}
+              />
+            )}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
