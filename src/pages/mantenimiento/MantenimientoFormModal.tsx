@@ -15,8 +15,8 @@ import { aplicarMascaraMoneda, formatearNumeroMoneda, textoMonedaANumero } from 
 const schema = z.object({
   titulo: z.string().min(3, 'Ingresá un título.'),
   activoId: z.string().min(1, 'Seleccioná un activo.'),
-  fechaProgramada: z.string().min(1, 'Ingresá la fecha programada.'),
-  fechaVencimiento: z.string().min(1, 'Ingresá la fecha de vencimiento.'),
+  fechaProgramada: z.string().min(1, 'Ingresá la fecha programada.').refine(val => val >= '2026-01-01', 'La fecha debe ser 2026 o posterior.'),
+  fechaVencimiento: z.string().min(1, 'Ingresá la fecha de vencimiento.').refine(val => val >= '2026-01-01', 'La fecha debe ser 2026 o posterior.'),
   estado: z.enum(['PENDIENTE', 'EN_PROCESO', 'FINALIZADO', 'CANCELADO']),
   responsableId: z.string().min(1, 'Seleccioná un inspector responsable.'),
   materiales: z.string().optional(),

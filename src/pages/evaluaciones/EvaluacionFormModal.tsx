@@ -21,7 +21,7 @@ import { validarFechaNoFutura } from '@/utils/format';
 const schema = z.object({
   espacioId: z.string().min(1, 'Seleccioná un activo/espacio.'),
   inspector: z.string().min(2, 'Ingresá el nombre del inspector.'),
-  fecha: z.string().min(1, 'Ingresá la fecha.').refine(validarFechaNoFutura, 'La fecha no puede ser futura.'),
+  fecha: z.string().min(1, 'Ingresá la fecha.').refine(validarFechaNoFutura, 'La fecha no puede ser futura.').refine(val => val >= '2026-01-01', 'La fecha debe ser 2026 o posterior.'),
   notas: z.string().optional(),
 });
 

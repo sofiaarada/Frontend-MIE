@@ -19,7 +19,7 @@ const schema = z.object({
   responsableId: z.string().optional(),
   prioridad: z.enum(['BAJA', 'MEDIA', 'ALTA', 'URGENTE']),
   estado: z.enum(['PENDIENTE', 'EN_PROCESO', 'FINALIZADO', 'CANCELADO']),
-  fechaVencimiento: z.string().optional(),
+  fechaVencimiento: z.string().optional().refine(val => !val || val >= '2026-01-01', 'La fecha debe ser 2026 o posterior.'),
 });
 
 export type TicketFormValues = z.infer<typeof schema>;

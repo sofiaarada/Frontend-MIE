@@ -44,8 +44,8 @@ export function InstitucionFormModal({
   onCerrar,
   onGuardar,
   institucion,
-}: InstitucionFormModalProps) {
-  const [guardando, setGuardando] = useState(false);
+  cargando: cargandoPadre,
+}: InstitucionFormModalProps & { cargando?: boolean }) {
   const { setSidebarMobileAbierto } = useUiStore((s) => s);
 
   const {
@@ -73,22 +73,7 @@ export function InstitucionFormModal({
   });
 
   const onSubmit = async (valores: InstitucionFormValues) => {
-    setGuardando(true);
-    try {
-      if (institucion) {
-        await resourcesApi.actualizar<any, InstitucionFormValues>('instituciones', institucion.id_institucion, valores);
-      } else {
-        await resourcesApi.crear<any, InstitucionFormValues>('instituciones', valores);
-      }
-      toast.success('Institución guardada correctamente.');
-      onCerrar();
-      // Recargar datos en la store si es necesario
-      setSidebarMobileAbierto(false);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'No se pudo guardar la institución.');
-    } finally {
-      setGuardando(false);
-    }
+    await onGuardar(valores);
   };
 
   return (
@@ -100,7 +85,7 @@ export function InstitucionFormModal({
       footer={
         <>
           <Button variant="outline" onClick={onCerrar}>Cancelar</Button>
-          <Button onClick={handleSubmit(onSubmit)} cargando={guardando}>
+          <Button onClick={handleSubmit(onSubmit)} cargando={cargandoPadre}>
             {institucion ? 'Guardar cambios' : 'Registrar institución'}
           </Button>
         </>
@@ -206,6 +191,7 @@ export function InstitucionFormModal({
 export function InstitucionManager() {
   const [institucion, setInstitucion] = useState<any>(null);
   const [editando, setEditando] = useState(false);
+  const [guardando, setGuardando] = useState(false);
   const session = useAuthStore((s) => s.session);
 
   // Cargar institución actual (solo admin)
@@ -218,7 +204,27 @@ export function InstitucionManager() {
   }, [session?.usuario?.rol]);
 
   const abrirModal = () => setEditando(true);
-  const cerrarModal = () => setEditando(false);
+  const cerrarModal = () => { setEditando(false); setGuardando(false); };
+
+  const guardar = async (valores: InstitucionFormValues) => {
+    setGuardando(true);
+    try {
+      if (institucion) {
+        await resourcesApi.actualizar<any, InstitucionFormValues>('instituciones', institucion.id_institucion, valores);
+      } else {
+        await resourcesApi.crear<any, InstitucionFormValues>('instituciones', valores);
+      }
+      toast.success('Institución guardada correctamente.');
+      cerrarModal();
+      // Recargar datos
+      const data = await resourcesApi.obtener<any>('instituciones', '1');
+      setInstitucion(data);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo guardar la institución.');
+    } finally {
+      setGuardando(false);
+    }
+  };
 
   return (
     <div>
@@ -244,7 +250,7 @@ export function InstitucionManager() {
                 viewBox="0 0 24 24"
                 fill="currentColor"
               >
-                <path d="M11 7a2 2 0 012 2h3a2 2 0 010 4h-3a2 2 0 01-2-2V7zM5 11a2 2 0 012-2h4a2 2 0 010 4H7a2 2 0 01-2-2V11zM6 4a2 2 0 012 2h2a2 2 0 010 2H6a2 2 0 01-2-2V4zm7.136 11.864a1 1 0 010 1.414l-.536.536a1 1 0 11-1.414-1.414l.536-.536a1 1 0 011.414 1.414l-.027.055a6.6 6 0 01-.357 1.313l-.828.608a5.5 5.5 0 00-.066 1.717l.595 1.488a4.5 4.5 0 00.164.818l-.019.1a4.5 4.5 0 00.89-.318l.675-.568a3.5 3.5 0 00.69-.518l-.418-.785a2.5 2.5 0 00-.152-.308l-.327-.308a1.5 1.5 0 00-.117-.278l-.297-1.038z" />
+                <path d="M11 7a2 2 0 012 2h3a2 2 0 010 4h-3a2 2 0 01-2-2V7zM5 11a2 2 0 012-2h4a2 2 0 010 4H7a2 2 0 01-2-2V11zM6 4a2 2 0 012 2h2a2 2 0 010 2H6a2 2 0 01-2-2V4zm7.136 11.864a1 1 0 010 1.414l-.536.536a1 1 0 11-1.414-1.414l.536-.536a1 1 0 011.414 1.414l-.027.055a6.6 6 0 01-.357 1.313l-.828.608a5.5 5.5 0 00-.066 1.717l-.595 1.488a4.5 4.5 0 00.164.818l-.019.1a4.5 4.5 0 00.89-.318l.675-.568a3.5 3.5 0 00.69-.518l-.418-.785a2.5 2.5 0 00-.152-.308l-.327-.308a1.5 1.5 0 00-.117-.278l-.297-1.038z" />
               </svg>
               Configurar
             </Button>
@@ -258,9 +264,11 @@ export function InstitucionManager() {
         )}
 
         {/* Mostrar resumen de datos actuales */}
-        {session?.usuario?.rol === 'Administrador' && institucion && (
+        {institucion && (
           <div className="mt-6 p-4 rounded-xl bg-surface-50 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700">
-            <h4 className="font-medium text-surface-900 dark:text-white mb-3">Resumen Actual</h4>
+            <h4 className="font-medium text-surface-900 dark:text-white mb-3">
+              {session?.usuario?.rol === 'Administrador' ? 'Resumen Actual' : 'Datos de la Institución'}
+            </h4>
             <div className="grid grid-cols-2 gap-3 text-sm text-surface-600 dark:text-surface-400">
               <div>
                 <p><strong>Nombre:</strong> {institucion.nombre_institucion}</p>
@@ -269,15 +277,37 @@ export function InstitucionManager() {
                 <p><strong>Departamento:</strong> {institucion.departamento}</p>
               </div>
               <div>
+                <p><strong>Dirección:</strong> {institucion.direccion}</p>
+                <p><strong>Teléfono:</strong> {institucion.telefono || '—'}</p>
+                <p><strong>Email:</strong> {institucion.email_contacto || '—'}</p>
+                <p><strong>Estado:</strong> {institucion.estado}</p>
+              </div>
+              <div>
                 <p><strong>Total Pisos:</strong> {institucion.total_pisos}</p>
                 <p><strong>Total Aulas:</strong> {institucion.total_aulas}</p>
+              </div>
+              <div>
                 <p><strong>Cap. Máxima:</strong> {institucion.capacidad_maxima} m²</p>
                 <p><strong>% Ocupación:</strong> {institucion.porcentaje_ocupacion_tipica}%</p>
               </div>
             </div>
           </div>
         )}
+
+        {!institucion && (
+          <p className="text-surface-500 dark:text-surface-400 text-sm mt-4 text-center py-8">
+            No hay datos de institución configurados.
+          </p>
+        )}
       </div>
+
+      <InstitucionFormModal
+        abierto={editando}
+        onCerrar={cerrarModal}
+        onGuardar={guardar}
+        institucion={institucion}
+        cargando={guardando}
+      />
     </div>
   );
 }
