@@ -25,6 +25,7 @@ export const useTourStore = create<TourState>()(
       cerrarTour: () => set({ abierto: false, visto: true }),
       
       marcarComoVisto: () => set({ visto: true }),
+      resetParaNuevoLogin: () => set({ visto: false, abierto: false, pendienteTrasLogin: true }),
     }),
     {
       name: 'mie-onboarding',

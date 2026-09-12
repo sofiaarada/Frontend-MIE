@@ -4,6 +4,7 @@ export const ROLE_HIERARCHY = {
   rector: 4,
   coordinador: 3,
   supervisor: 2,
+  inspector: 2, // Alias BD: rol se llama "Inspector"
   tecnico: 1,
 } as const;
 
@@ -14,6 +15,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   rector: 'Rector',
   coordinador: 'Coordinador',
   supervisor: 'Supervisor',
+  inspector: 'Inspector',
   tecnico: 'Técnico',
 };
 
@@ -22,11 +24,15 @@ export const ROLE_DB_VALUES: Record<Role, string> = {
   rector: 'Rector',
   coordinador: 'Coordinador',
   supervisor: 'Inspector', // En BD se llama Inspector
+  inspector: 'Inspector',
   tecnico: 'Técnico',
 };
 
 export function getRoleLevel(role: string): number {
-  const normalized = role.toLowerCase().replace('í', 'i').replace('ó', 'o');
+  const normalized = role
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
   return ROLE_HIERARCHY[normalized as Role] ?? 0;
 }
 
@@ -43,15 +49,15 @@ export const MODULE_PERMISSIONS: Record<string, Role[]> = {
   // Gestión de usuarios - solo admin
   'usuarios': ['administrador'],
   
-  // Espacios - Admin, Rector, Coordinador pueden gestionar; Supervisor y Técnico solo ver
-  'espacios.crear': ['administrador', 'rector', 'coordinador'],
-  'espacios.editar': ['administrador', 'rector', 'coordinador'],
+  // Espacios - Admin y Coordinador gestionan; Rector solo ver; Supervisor y Técnico solo ver
+  'espacios.crear': ['administrador', 'coordinador'],
+  'espacios.editar': ['administrador', 'coordinador'],
   'espacios.eliminar': ['administrador', 'rector'],
   'espacios.ver': ['administrador', 'rector', 'coordinador', 'supervisor', 'tecnico'],
   
   // Activos - Similar a espacios
-  'activos.crear': ['administrador', 'rector', 'coordinador'],
-  'activos.editar': ['administrador', 'rector', 'coordinador'],
+  'activos.crear': ['administrador', 'coordinador'],
+  'activos.editar': ['administrador', 'coordinador'],
   'activos.eliminar': ['administrador', 'rector'],
   'activos.ver': ['administrador', 'rector', 'coordinador', 'supervisor', 'tecnico'],
   
@@ -61,17 +67,19 @@ export const MODULE_PERMISSIONS: Record<string, Role[]> = {
   'evaluaciones.ver': ['administrador', 'rector', 'coordinador', 'supervisor', 'tecnico'],
   'evaluaciones.evidencias.ver': ['administrador', 'rector', 'coordinador'], // Solo estos pueden VER evidencias
   
-  // Mantenimiento/OT - Técnico ejecuta, Coordinador/Admin aprueba
-  'mantenimiento.crear': ['administrador', 'rector', 'coordinador'],
-  'mantenimiento.editar': ['administrador', 'rector', 'coordinador', 'tecnico'],
+  // Mantenimiento/OT - Técnico ejecuta, Coordinador/Admin crea y aprueba, Rector solo aprueba
+  'mantenimiento.crear': ['administrador', 'coordinador'],
+  'mantenimiento.editar': ['administrador', 'coordinador', 'tecnico'],
   'mantenimiento.aprobar': ['administrador', 'rector', 'coordinador'],
-  'mantenimiento.ejecutar': ['administrador', 'rector', 'coordinador', 'tecnico'],
+  'mantenimiento.ejecutar': ['administrador', 'coordinador', 'tecnico'],
+  'mantenimiento.eliminar': ['administrador', 'coordinador'],
   'mantenimiento.ver': ['administrador', 'rector', 'coordinador', 'supervisor', 'tecnico'],
   
   // Tickets - Todos pueden crear, Admin/Coord asignan, Técnico ejecuta
   'tickets.crear': ['administrador', 'rector', 'coordinador', 'supervisor', 'tecnico'],
-  'tickets.asignar': ['administrador', 'rector', 'coordinador'],
-  'tickets.ejecutar': ['administrador', 'rector', 'coordinador', 'tecnico'],
+  'tickets.asignar': ['administrador', 'coordinador'],
+  'tickets.ejecutar': ['administrador', 'coordinador', 'tecnico'],
+  'tickets.eliminar': ['administrador'],
   'tickets.ver': ['administrador', 'rector', 'coordinador', 'supervisor', 'tecnico'],
   
   // Reportes - Admin, Rector, Coordinador

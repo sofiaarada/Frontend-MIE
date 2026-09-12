@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { KpiCard } from './KpiCard';
 import { formatearMoneda } from '@/utils/format';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { cn } from '@/utils/cn';
 
 interface AlertaExtendida {
@@ -46,9 +47,9 @@ const colorIconoAlerta: Record<string, string> = {
 };
 
 const badgeAlerta: Record<string, React.ComponentType<{ children: React.ReactNode }>> = {
-  Info: ({ children }) => <Badge variant="info">{children}</Badge>,
-  Advertencia: ({ children }) => <Badge variant="warning">{children}</Badge>,
-  Critico: ({ children }) => <Badge variant="danger">{children}</Badge>,
+  Info: ({ children }) => <Badge tono="primary">{children}</Badge>,
+  Advertencia: ({ children }) => <Badge tono="warning">{children}</Badge>,
+  Critico: ({ children }) => <Badge tono="danger">{children}</Badge>,
 };
 
 export function DashboardPage() {
@@ -143,7 +144,7 @@ export function DashboardPage() {
             <div className="flex items-center gap-2">
               <span className="text-xs text-surface-400">Últimos 6 cortes</span>
               {tendenciaCompletadas !== 0 && (
-                <Badge variant={tendenciaCompletadas > 0 ? 'success' : 'danger'} className="text-xs">
+                <Badge tono={tendenciaCompletadas > 0 ? 'success' : 'danger'} className="text-xs">
                   {tendenciaCompletadas > 0 ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
                   {Math.abs(tendenciaCompletadas)} vs mes anterior
                 </Badge>

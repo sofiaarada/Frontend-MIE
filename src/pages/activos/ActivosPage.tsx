@@ -13,6 +13,8 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { formatearMoneda } from '@/utils/format';
+import { canAccessModule } from '@/utils/permissions';
+import { useAuthStore } from '@/store/authStore';
 import { ActivosTable } from './ActivosTable';
 import { ActivoFormModal, type ActivoFormValues } from './ActivoFormModal';
 
@@ -20,6 +22,10 @@ type FiltroEstado = 'TODOS' | Activo['estado'];
 
 export function ActivosPage() {
   const queryClient = useQueryClient();
+  const rol = useAuthStore((s) => s.session?.usuario.rol) ?? '';
+  const puedeCrear = canAccessModule(rol, 'activos.crear');
+  const puedeEditar = canAccessModule(rol, 'activos.editar');
+  const puedeEliminar = canAccessModule(rol, 'activos.eliminar');
   const [busqueda, setBusqueda] = useState('');
   const [categoria, setCategoria] = useState<string>('TODAS');
   const [estado, setEstado] = useState<FiltroEstado>('TODOS');
@@ -88,9 +94,11 @@ export function ActivosPage() {
             Inst. Educativo San Martín · Ciclo 2026
           </p>
         </div>
+        {puedeCrear && (
         <Button icono={<Plus className="h-4 w-4" />} onClick={abrirNuevo}>
           Registrar activo
         </Button>
+        )}
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -128,7 +136,7 @@ export function ActivosPage() {
             {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
           </div>
         ) : (
-          <ActivosTable activos={data?.data ?? []} onEditar={abrirEditar} onEliminar={setActivoAEliminar} />
+          <ActivosTable activos={data?.data ?? []} onEditar={puedeEditar ? abrirEditar : undefined} onEliminar={puedeEliminar ? setActivoAEliminar : undefined} />
         )}
       </Card>
 

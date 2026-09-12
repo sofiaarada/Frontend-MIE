@@ -112,9 +112,11 @@ export interface Mantenimiento {
   ticketId?: string;
   titulo: string;
   responsable: string;
+  responsableId?: string;
   materiales: string[];
   costo: number;
   fechaProgramada: string;
+  fechaVencimiento?: string;
   estado: EstadoTicket;
   activoId?: string;
 }

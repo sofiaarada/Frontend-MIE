@@ -119,7 +119,7 @@ export const inspeccionesService = {
       if (!evidenciasPorInspeccion[e.id_inspeccion]) evidenciasPorInspeccion[e.id_inspeccion] = [];
       evidenciasPorInspeccion[e.id_inspeccion].push(e.url_fotografia);
     });
-    return result.data.map((i) => mapInspeccion(i, activos, evidenciasPorInspeccion[i.id] || [], [])).sort((a, b) => b.fecha.localeCompare(a.fecha));
+    return result.data.map((i) => mapInspeccion(i, activos, evidenciasPorInspeccion[i.id_inspeccion] || [], [])).sort((a, b) => b.fecha.localeCompare(a.fecha));
   },
 
   async obtenerConDetalle(id: string): Promise<Inspeccion | undefined> {

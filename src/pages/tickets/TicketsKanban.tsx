@@ -5,8 +5,8 @@ import { cn } from '@/utils/cn';
 
 interface TicketsKanbanProps {
   tickets: Ticket[];
-  onAbrir: (ticket: Ticket) => void;
-  onMover: (ticket: Ticket, estado: EstadoTicket) => void;
+  onAbrir?: (ticket: Ticket) => void;
+  onMover?: (ticket: Ticket, estado: EstadoTicket) => void;
 }
 
 const columnas: { estado: EstadoTicket; label: string; dot: string }[] = [
@@ -31,6 +31,7 @@ export function TicketsKanban({ tickets, onAbrir, onMover }: TicketsKanbanProps)
             onDrop={(e) => {
               e.preventDefault();
               setSobreColumna(null);
+              if (!onMover) return;
               const ticket = tickets.find((t) => t.id === idArrastrado);
               if (ticket && ticket.estado !== col.estado) onMover(ticket, col.estado);
             }}
@@ -52,8 +53,8 @@ export function TicketsKanban({ tickets, onAbrir, onMover }: TicketsKanbanProps)
                 <TicketCard
                   key={t.id}
                   ticket={t}
-                  onClick={() => onAbrir(t)}
-                  onDragStart={() => setIdArrastrado(t.id)}
+                  onClick={onAbrir ? () => onAbrir(t) : undefined}
+                  onDragStart={onMover ? () => setIdArrastrado(t.id) : undefined}
                 />
               ))}
               {items.length === 0 && (

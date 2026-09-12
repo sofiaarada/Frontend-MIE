@@ -9,7 +9,7 @@ import { cn } from '@/utils/cn';
 
 interface MantenimientoCalendarProps {
   items: Mantenimiento[];
-  onAbrir: (item: Mantenimiento) => void;
+  onAbrir?: (item: Mantenimiento) => void;
 }
 
 const diasSemana = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -116,7 +116,7 @@ export function MantenimientoCalendar({ items, onAbrir }: MantenimientoCalendarP
             {itemsDelDia.map((item) => (
               <button
                 key={item.id}
-                onClick={() => onAbrir(item)}
+                onClick={onAbrir ? () => onAbrir(item) : undefined}
                 className="focus-ring w-full rounded-xl border border-surface-100 p-3 text-left hover:bg-surface-50 dark:border-surface-800 dark:hover:bg-surface-800/60"
               >
                 <div className="flex items-start justify-between gap-2">

@@ -4,8 +4,6 @@ import { Calendar, List, Plus, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Mantenimiento, EstadoTicket } from '@/types';
 import { mantenimientoService, type MantenimientoInput } from '@/services/mantenimientoService';
-import { usuariosService } from '@/services/usuariosService';
-import { useAuthStore } from '@/store/authStore';
 import { Input } from '@/components/ui/Input';
 import { Tabs } from '@/components/ui/Tabs';
 import { Button } from '@/components/ui/Button';
@@ -15,9 +13,11 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { formatearMoneda } from '@/utils/format';
 import { mensajeError } from '@/utils/errores';
 import { cn } from '@/utils/cn';
+import { canAccessModule } from '@/utils/permissions';
+import { useAuthStore } from '@/store/authStore';
 import { MantenimientoCalendar } from './MantenimientoCalendar';
 import { MantenimientoTable } from './MantenimientoTable';
-import { MantenimientoFormModal, type MantenimientoFormValues, type ResponsableOpcion } from './MantenimientoFormModal';
+import { MantenimientoFormModal, type MantenimientoFormValues } from './MantenimientoFormModal';
 
 type FiltroEstado = 'TODOS' | EstadoTicket;
 const filtros: { value: FiltroEstado; label: string }[] = [
@@ -29,7 +29,10 @@ const filtros: { value: FiltroEstado; label: string }[] = [
 
 export function MantenimientoPage() {
   const queryClient = useQueryClient();
-  const usuario = useAuthStore((s) => s.session?.usuario);
+  const rol = useAuthStore((s) => s.session?.usuario.rol) ?? '';
+  const puedeCrear = canAccessModule(rol, 'mantenimiento.crear');
+  const puedeEditar = canAccessModule(rol, 'mantenimiento.editar');
+  const puedeEliminar = canAccessModule(rol, 'mantenimiento.eliminar');
   const [vista, setVista] = useState<'calendario' | 'tabla'>('calendario');
   const [estado, setEstado] = useState<FiltroEstado>('TODOS');
   const [busqueda, setBusqueda] = useState('');
@@ -42,18 +45,6 @@ export function MantenimientoPage() {
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['mantenimiento'],
     queryFn: mantenimientoService.listar,
-  });
-
-  const { data: responsables = [] } = useQuery<ResponsableOpcion[]>({
-    queryKey: ['responsables'],
-    queryFn: async () => {
-      try {
-        const r = await usuariosService.listar({ pageSize: 1000 });
-        return r.data.map((u) => ({ id: u.id, nombre: u.nombre }));
-      } catch {
-        return usuario ? [{ id: String(usuario.id), nombre: usuario.nombre }] : [];
-      }
-    },
   });
 
   const itemsFiltrados = useMemo(() => {
@@ -124,9 +115,11 @@ export function MantenimientoPage() {
             Inst. Educativo San Martín · Ciclo 2026
           </p>
         </div>
+        {puedeCrear && (
         <Button icono={<Plus className="h-4 w-4" />} onClick={abrirNuevo}>
           Programar mantenimiento
         </Button>
+        )}
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -161,10 +154,10 @@ export function MantenimientoPage() {
       {isLoading ? (
         <Skeleton className="h-96 w-full rounded-2xl" />
       ) : vista === 'calendario' ? (
-        <MantenimientoCalendar items={itemsFiltrados} onAbrir={abrirEditar} />
+        <MantenimientoCalendar items={itemsFiltrados} onAbrir={puedeEditar ? abrirEditar : undefined} />
       ) : (
         <Card className="p-2">
-          <MantenimientoTable items={itemsFiltrados} onEditar={abrirEditar} onEliminar={setItemAEliminar} />
+          <MantenimientoTable items={itemsFiltrados} onEditar={puedeEditar ? abrirEditar : undefined} onEliminar={puedeEliminar ? setItemAEliminar : undefined} />
         </Card>
       )}
 
@@ -179,7 +172,6 @@ export function MantenimientoPage() {
         onCerrar={() => setModalAbierto(false)}
         onGuardar={guardar}
         item={itemSeleccionado}
-        responsables={responsables}
       />
 
       <ConfirmDialog

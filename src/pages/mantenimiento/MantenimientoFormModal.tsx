@@ -9,15 +9,14 @@ import { Select } from '@/components/ui/Select';
 import { ComboboxBusqueda, type ComboboxOpcion } from '@/components/ui/ComboboxBusqueda';
 import { Button } from '@/components/ui/Button';
 import { useActivos } from '@/hooks/useActivos';
-import { resourcesApi } from '@/services/api/resources';
+import { usuariosService } from '@/services/usuariosService';
 import { aplicarMascaraMoneda, formatearNumeroMoneda, textoMonedaANumero } from '@/utils/format';
-import { validarFechaNoFutura } from '@/utils/format';
 
 const schema = z.object({
   titulo: z.string().min(3, 'Ingresá un título.'),
   activoId: z.string().min(1, 'Seleccioná un activo.'),
-  fechaProgramada: z.string().min(1, 'Ingresá la fecha programada.').refine(validarFechaNoFutura, 'La fecha no puede ser futura.'),
-  fechaVencimiento: z.string().min(1, 'Ingresá la fecha de vencimiento.').refine(validarFechaNoFutura, 'La fecha no puede ser futura.'),
+  fechaProgramada: z.string().min(1, 'Ingresá la fecha programada.'),
+  fechaVencimiento: z.string().min(1, 'Ingresá la fecha de vencimiento.'),
   estado: z.enum(['PENDIENTE', 'EN_PROCESO', 'FINALIZADO', 'CANCELADO']),
   responsableId: z.string().min(1, 'Seleccioná un inspector responsable.'),
   materiales: z.string().optional(),
@@ -57,12 +56,8 @@ export function MantenimientoFormModal({ abierto, onCerrar, onGuardar, item }: M
   const cargarInspectores = useCallback(async () => {
     setCargandoInspectores(true);
     try {
-      const result = await resourcesApi.listar<{ id_usuario: string; nombres: string; apellidos: string; nombre_rol: string }>('usuarios', { 
-        pageSize: 1000,
-        estado: 'Activo',
-        id_rol: 3 // Inspector role ID
-      });
-      setInspectores(result.data.map(u => ({ id: String(u.id_usuario), nombre: `${u.nombres} ${u.apellidos}` })));
+      const directorio = await usuariosService.directorio(3); // Inspector role ID (BD viva)
+      setInspectores(directorio.map((u) => ({ id: u.id, nombre: u.nombre })));
     } catch (error) {
       console.error('Error cargando inspectores:', error);
       setInspectores([]);
@@ -105,7 +100,7 @@ export function MantenimientoFormModal({ abierto, onCerrar, onGuardar, item }: M
     <Modal
       abierto={abierto}
       onCerrar={onCerrar}
-      titulo={item ? 'Editar mantenimiento (OT-3)' : 'Programar mantenimiento (OT-3)'}
+      titulo={item ? `Editar mantenimiento (#${item.id})` : 'Programar mantenimiento'}
       descripcion="Completá los datos de la orden de trabajo. El responsable debe ser un inspector."
       footer={
         <>

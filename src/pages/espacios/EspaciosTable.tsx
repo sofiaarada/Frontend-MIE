@@ -8,8 +8,8 @@ import { urlImagen } from '@/utils/imagen';
 interface EspaciosTableProps {
   espacios: Espacio[];
   onVer: (espacio: Espacio) => void;
-  onEditar: (espacio: Espacio) => void;
-  onEliminar: (espacio: Espacio) => void;
+  onEditar?: (espacio: Espacio) => void;
+  onEliminar?: (espacio: Espacio) => void;
 }
 
 export function EspaciosTable({ espacios, onVer, onEditar, onEliminar }: EspaciosTableProps) {
@@ -61,12 +61,16 @@ export function EspaciosTable({ espacios, onVer, onEditar, onEliminar }: Espacio
                   <button onClick={() => onVer(e)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800">
                     <Eye className="h-4 w-4" />
                   </button>
-                  <button onClick={() => onEditar(e)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800">
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => onEliminar(e)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-danger-50 hover:text-danger-500 dark:hover:bg-danger-500/10">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  {onEditar && (
+                    <button onClick={() => onEditar(e)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                  )}
+                  {onEliminar && (
+                    <button onClick={() => onEliminar(e)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-danger-50 hover:text-danger-500 dark:hover:bg-danger-500/10">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>

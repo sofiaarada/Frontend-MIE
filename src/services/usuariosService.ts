@@ -13,6 +13,10 @@ const mapUsuario = (db: UsuarioDB): UsuarioAdmin => ({
 });
 
 export const usuariosService = {
+  async directorio(idRol?: number): Promise<Array<{ id: string; nombre: string; rol: string }>> {
+    const { data } = await apiClient.get<{ data: Array<{ id_usuario: string; nombres: string; apellidos: string; nombre_rol: string }> }>('/api/directory/users', { params: idRol ? { id_rol: idRol } : {} });
+    return data.data.map((u) => ({ id: String(u.id_usuario), nombre: `${u.nombres} ${u.apellidos}`, rol: u.nombre_rol }));
+  },
   async listar(filtros: FiltrosUsuarios = {}): Promise<Paginado<UsuarioAdmin>> {
     const { data } = await apiClient.get<{ data: UsuarioDB[]; total: number; page: number; pageSize: number }>('/api/admin/users', { params: filtros });
     return { ...data, data: data.data.map(mapUsuario) };

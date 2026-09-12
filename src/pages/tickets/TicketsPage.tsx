@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { cn } from '@/utils/cn';
+import { canAccessModule } from '@/utils/permissions';
 import { TicketsKanban } from './TicketsKanban';
 import { TicketsTable } from './TicketsTable';
 import { TicketFormModal, type TicketFormValues, type ResponsableOpcion } from './TicketFormModal';
@@ -22,6 +23,11 @@ type FiltroPrioridad = 'TODAS' | Ticket['prioridad'];
 export function TicketsPage() {
   const queryClient = useQueryClient();
   const usuario = useAuthStore((s) => s.session?.usuario);
+  const rol = usuario?.rol ?? '';
+  const puedeCrear = canAccessModule(rol, 'tickets.crear');
+  const puedeAsignar = canAccessModule(rol, 'tickets.asignar');
+  const puedeEjecutar = canAccessModule(rol, 'tickets.ejecutar');
+  const puedeEliminar = canAccessModule(rol, 'tickets.eliminar');
   const [vista, setVista] = useState<'kanban' | 'tabla'>('kanban');
   const [busqueda, setBusqueda] = useState('');
   const [prioridad, setPrioridad] = useState<FiltroPrioridad>('TODAS');
@@ -102,9 +108,11 @@ export function TicketsPage() {
             Inst. Educativo San Martín · Ciclo 2026
           </p>
         </div>
+        {puedeCrear && (
         <Button icono={<Plus className="h-4 w-4" />} onClick={abrirNuevo}>
           Nueva OT
         </Button>
+        )}
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -149,10 +157,10 @@ export function TicketsPage() {
           {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-72 w-full rounded-2xl" />)}
         </div>
       ) : vista === 'kanban' ? (
-        <TicketsKanban tickets={tickets} onAbrir={abrirEditar} onMover={mover} />
+        <TicketsKanban tickets={tickets} onAbrir={puedeAsignar || puedeEjecutar ? abrirEditar : undefined} onMover={puedeEjecutar ? mover : undefined} />
       ) : (
         <Card className="p-2">
-          <TicketsTable tickets={tickets} onEditar={abrirEditar} onEliminar={setTicketAEliminar} />
+          <TicketsTable tickets={tickets} onEditar={puedeAsignar ? abrirEditar : undefined} onEliminar={puedeEliminar ? setTicketAEliminar : undefined} />
         </Card>
       )}
 

@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { MainLayout } from '@/layouts/MainLayout';
-import { ProtectedRoute } from '@/routes/ProtectedRoute';
+import { ProtectedRoute, RoleRoute } from '@/routes/ProtectedRoute';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { WelcomePage } from '@/pages/landing/WelcomePage';
 import { DashboardPage } from '@/pages/dashboard/DashboardPage';
@@ -14,6 +14,7 @@ import { MantenimientoPage } from '@/pages/mantenimiento/MantenimientoPage';
 import { EvaluacionesPage } from '@/pages/evaluaciones/EvaluacionesPage';
 import { ReportesPage } from '@/pages/reportes/ReportesPage';
 import { UsuariosPage } from '@/pages/usuarios/UsuariosPage';
+import { InstitucionManager } from '@/pages/instituciones/InstitucionPage';
 import { PerfilPage } from '@/pages/perfil/PerfilPage';
 import { AdminRoute } from '@/routes/AdminRoute';
 
@@ -40,8 +41,9 @@ export default function App() {
               <Route path="/tickets" element={<TicketsPage />} />
               <Route path="/mantenimiento" element={<MantenimientoPage />} />
               <Route path="/evaluaciones" element={<EvaluacionesPage />} />
-              <Route path="/reportes" element={<ReportesPage />} />
+              <Route element={<RoleRoute minimumRole="coordinador" />}><Route path="/reportes" element={<ReportesPage />} /></Route>
               <Route element={<AdminRoute />}><Route path="/usuarios" element={<UsuariosPage />} /></Route>
+              <Route element={<AdminRoute />}><Route path="/instituciones" element={<InstitucionManager />} /></Route>
               <Route path="/perfil" element={<PerfilPage />} />
             </Route>
           </Route>

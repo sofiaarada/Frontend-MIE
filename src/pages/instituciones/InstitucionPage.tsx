@@ -11,21 +11,6 @@ import { useUiStore } from '@/store/uiStore';
 import { resourcesApi } from '@/services/api/resources';
 import { toast } from 'sonner';
 
-interface InstitucionFormValues {
-  nombre_institucion: string;
-  codigo_nit_rut: string;
-  direccion: string;
-  ciudad: string;
-  departamento: string;
-  telefono: string;
-  email_contacto: string;
-  estado: string;
-  total_pisos: number;
-  total_aulas: number;
-  capacidad_maxima: number;
-  porcentaje_ocupacion_tipica: number;
-}
-
 interface InstitucionFormModalProps {
   abierto: boolean;
   onCerrar: () => void;
@@ -61,7 +46,6 @@ export function InstitucionFormModal({
   institucion,
 }: InstitucionFormModalProps) {
   const [guardando, setGuardando] = useState(false);
-  const { data: usuario } = useAuthStore((s) => s.session?.usuario);
   const { setSidebarMobileAbierto } = useUiStore((s) => s);
 
   const {
@@ -92,9 +76,9 @@ export function InstitucionFormModal({
     setGuardando(true);
     try {
       if (institucion) {
-        await resourcesApi.actualizar<InstitucionFormValues>('instituciones', institucion.id_institucion, valores);
+        await resourcesApi.actualizar<any, InstitucionFormValues>('instituciones', institucion.id_institucion, valores);
       } else {
-        await resourcesApi.crear<InstitucionFormValues>('instituciones', valores);
+        await resourcesApi.crear<any, InstitucionFormValues>('instituciones', valores);
       }
       toast.success('Institución guardada correctamente.');
       onCerrar();
@@ -202,20 +186,16 @@ export function InstitucionFormModal({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-surface-700 dark:text-surface-200">
-            Estado
-            <Select
-              value={errors.estado?.rawValue ?? 'Activo'}
-              onValueChange={(value: string) => {
-                // Este es un workaround para el Select de react-hook-form
-                // Actualizamos el campo manualmente
-                setValue('estado', value);
-              }}
-            >
-              <option value="Activo">Activo</option>
-              <option value="Inactivo">Inactivo</option>
-            </Select>
-          </label>
+          <Controller
+            control={control}
+            name="estado"
+            render={({ field }) => (
+              <Select label="Estado" value={field.value} onChange={field.onChange} error={errors.estado?.message}>
+                <option value="Activo">Activo</option>
+                <option value="Inactivo">Inactivo</option>
+              </Select>
+            )}
+          />
         </div>
       </fieldset>
     </Modal>
@@ -226,7 +206,7 @@ export function InstitucionFormModal({
 export function InstitucionManager() {
   const [institucion, setInstitucion] = useState<any>(null);
   const [editando, setEditando] = useState(false);
-  const { session } = useAuthStore((s) => s.session);
+  const session = useAuthStore((s) => s.session);
 
   // Cargar institución actual (solo admin)
   useEffect(() => {

@@ -88,6 +88,7 @@ function mapMantenimiento(db: MantenimientoDB, materiales: MaterialDB[], activos
     ticketId: db.id_ticket ?? undefined,
     titulo: db.resumen_trabajo || activos[String(db.id_activo)] || `Mantenimiento #${db.id_mantenimiento}`,
     responsable: responsables[String(db.id_tecnico)] ?? 'Por asignar',
+    responsableId: db.id_tecnico ? String(db.id_tecnico) : undefined,
     materiales: materiales.map((m) => m.nombre_material),
     costo: Number(db.costo_estimado ?? 0) || costoMateriales,
     fechaProgramada: (db.fecha_programada || '').split('T')[0],

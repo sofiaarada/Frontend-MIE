@@ -6,8 +6,8 @@ import { formatearFecha, formatearMoneda } from '@/utils/format';
 
 interface ActivosTableProps {
   activos: Activo[];
-  onEditar: (activo: Activo) => void;
-  onEliminar: (activo: Activo) => void;
+  onEditar?: (activo: Activo) => void;
+  onEliminar?: (activo: Activo) => void;
 }
 
 export function ActivosTable({ activos, onEditar, onEliminar }: ActivosTableProps) {
@@ -46,12 +46,16 @@ export function ActivosTable({ activos, onEditar, onEliminar }: ActivosTableProp
               <td className="px-3 py-3 text-surface-500 dark:text-surface-400">{formatearMoneda(a.valor)}</td>
               <td className="px-3 py-3">
                 <div className="flex items-center justify-end gap-1">
-                  <button onClick={() => onEditar(a)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800">
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => onEliminar(a)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-danger-50 hover:text-danger-500 dark:hover:bg-danger-500/10">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  {onEditar && (
+                    <button onClick={() => onEditar(a)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                  )}
+                  {onEliminar && (
+                    <button onClick={() => onEliminar(a)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-danger-50 hover:text-danger-500 dark:hover:bg-danger-500/10">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>

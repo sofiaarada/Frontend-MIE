@@ -8,19 +8,21 @@ import { cn } from '@/utils/cn';
 
 interface TicketCardProps {
   ticket: Ticket;
-  onClick: () => void;
-  onDragStart: (e: DragEvent) => void;
+  onClick?: () => void;
+  onDragStart?: (e: DragEvent) => void;
 }
 
 export function TicketCard({ ticket, onClick, onDragStart }: TicketCardProps) {
   const vencido = new Date(ticket.fechaVencimiento) < new Date() && ticket.estado !== 'FINALIZADO';
 
+  const puedeInteractuar = Boolean(onClick || onDragStart);
+
   return (
     <Card
-      draggable
+      draggable={Boolean(onDragStart)}
       onDragStart={onDragStart}
       onClick={onClick}
-      className="cursor-grab space-y-2.5 p-3.5 active:cursor-grabbing"
+      className={cn('space-y-2.5 p-3.5', puedeInteractuar && 'focus-ring cursor-grab active:cursor-grabbing')}
     >
       <div className="flex items-start justify-between gap-2">
         <p className="text-[11px] font-medium text-surface-400">{ticket.codigo}</p>

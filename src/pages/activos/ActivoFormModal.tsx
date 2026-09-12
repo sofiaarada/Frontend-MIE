@@ -10,7 +10,7 @@ import { ComboboxBusqueda, type ComboboxOpcion } from '@/components/ui/ComboboxB
 import { Button } from '@/components/ui/Button';
 import { categoriasActivo } from '@/constants/formOptions';
 import { useEspacios } from '@/hooks/useEspacios';
-import { resourcesApi } from '@/services/api/resources';
+import { usuariosService } from '@/services/usuariosService';
 import { aplicarMascaraMoneda, formatearNumeroMoneda, textoMonedaANumero } from '@/utils/format';
 import { generarSiguienteCodigo, validarFormatoCodigo, validarFechaNoFutura } from '@/utils/format';
 
@@ -61,16 +61,13 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
   const cargarResponsables = useCallback(async () => {
     setCargandoResponsables(true);
     try {
-      const result = await recursosApi.listar<{ id_usuario: string; nombres: string; apellidos: string; nombre_rol: string }>('usuarios', { 
-        pageSize: 1000,
-        estado: 'Activo'
-      });
+      const directorio = await usuariosService.directorio();
       // Filtrar solo roles válidos para ser responsables: Inspector, Técnico, Coordinador, Rector, Administrador
       const rolesValidos = ['Inspector', 'Técnico', 'Coordinador', 'Rector', 'Administrador'];
       setResponsables(
-        result.data
-          .filter(u => rolesValidos.includes(u.nombre_rol))
-          .map(u => ({ id: String(u.id_usuario), nombre: `${u.nombres} ${u.apellidos}`, rol: u.nombre_rol }))
+        directorio
+          .filter((u) => rolesValidos.includes(u.rol))
+          .map((u) => ({ id: u.id, nombre: u.nombre, rol: u.rol }))
       );
     } catch (error) {
       console.error('Error cargando responsables:', error);
@@ -98,7 +95,7 @@ export function ActivoFormModal({ abierto, onCerrar, onGuardar, activo }: Activo
         reset({ ...activo, valor: activo.valor });
       } else {
         // Generar código automático solo para nuevo activo
-        const codigosExistentes = []; // Se podría cargar de la API
+        const codigosExistentes: string[] = []; // Se podría cargar de la API
         const codigoSugerido = generarSiguienteCodigo(codigosExistentes);
         reset({ ...valoresVacios, codigo: codigoSugerido });
       }

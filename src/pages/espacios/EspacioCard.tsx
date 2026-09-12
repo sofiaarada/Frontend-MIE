@@ -8,7 +8,7 @@ import { urlImagen } from '@/utils/imagen';
 interface EspacioCardProps {
   espacio: Espacio;
   onVer: (espacio: Espacio) => void;
-  onEditar: (espacio: Espacio) => void;
+  onEditar?: (espacio: Espacio) => void;
   onEvaluar: (espacio: Espacio) => void;
 }
 
@@ -54,12 +54,14 @@ export function EspacioCard({ espacio, onVer, onEditar, onEvaluar }: EspacioCard
           >
             <Eye className="h-3.5 w-3.5" /> Ver
           </button>
-          <button
-            onClick={() => onEditar(espacio)}
-            className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium text-surface-500 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-surface-800"
-          >
-            <Pencil className="h-3.5 w-3.5" /> Editar
-          </button>
+          {onEditar && (
+            <button
+              onClick={() => onEditar(espacio)}
+              className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium text-surface-500 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-surface-800"
+            >
+              <Pencil className="h-3.5 w-3.5" /> Editar
+            </button>
+          )}
           <button onClick={() => onEvaluar(espacio)} className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg py-1.5 text-xs font-medium text-surface-500 hover:bg-surface-100 dark:text-surface-400 dark:hover:bg-surface-800">
             <ClipboardCheck className="h-3.5 w-3.5" /> Evaluar
           </button>

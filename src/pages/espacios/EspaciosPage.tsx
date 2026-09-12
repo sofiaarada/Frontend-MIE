@@ -13,6 +13,8 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { cn } from '@/utils/cn';
+import { canAccessModule } from '@/utils/permissions';
+import { useAuthStore } from '@/store/authStore';
 import { EspacioCard } from './EspacioCard';
 import { EspaciosTable } from './EspaciosTable';
 import { EspacioFormModal, type EspacioFormValues } from './EspacioFormModal';
@@ -29,6 +31,10 @@ const filtrosEstado: { value: VistaEstado; label: string }[] = [
 export function EspaciosPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const rol = useAuthStore((s) => s.session?.usuario.rol) ?? '';
+  const puedeCrear = canAccessModule(rol, 'espacios.crear');
+  const puedeEditar = canAccessModule(rol, 'espacios.editar');
+  const puedeEliminar = canAccessModule(rol, 'espacios.eliminar');
   const [vista, setVista] = useState<'cards' | 'tabla'>('cards');
   const [estado, setEstado] = useState<VistaEstado>('TODOS');
   const [busqueda, setBusqueda] = useState('');
@@ -91,9 +97,11 @@ export function EspaciosPage() {
             Inst. Educativo San Martín · Ciclo 2026
           </p>
         </div>
+        {puedeCrear && (
         <Button icono={<Plus className="h-4 w-4" />} onClick={abrirNuevo}>
           Nuevo espacio
         </Button>
+        )}
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -136,12 +144,12 @@ export function EspaciosPage() {
       ) : vista === 'cards' ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {data?.data.map((e) => (
-            <EspacioCard key={e.id} espacio={e} onVer={abrirVer} onEditar={abrirEditar} onEvaluar={() => navigate('/evaluaciones')} />
+            <EspacioCard key={e.id} espacio={e} onVer={abrirVer} onEditar={puedeEditar ? abrirEditar : undefined} onEvaluar={() => navigate('/evaluaciones')} />
           ))}
         </div>
       ) : (
         <Card className="p-2">
-          <EspaciosTable espacios={data?.data ?? []} onVer={abrirVer} onEditar={abrirEditar} onEliminar={setEspacioAEliminar} />
+          <EspaciosTable espacios={data?.data ?? []} onVer={abrirVer} onEditar={puedeEditar ? abrirEditar : undefined} onEliminar={puedeEliminar ? setEspacioAEliminar : undefined} />
         </Card>
       )}
 

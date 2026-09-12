@@ -6,8 +6,8 @@ import { formatearFecha } from '@/utils/format';
 
 interface TicketsTableProps {
   tickets: Ticket[];
-  onEditar: (ticket: Ticket) => void;
-  onEliminar: (ticket: Ticket) => void;
+  onEditar?: (ticket: Ticket) => void;
+  onEliminar?: (ticket: Ticket) => void;
 }
 
 export function TicketsTable({ tickets, onEditar, onEliminar }: TicketsTableProps) {
@@ -42,12 +42,16 @@ export function TicketsTable({ tickets, onEditar, onEliminar }: TicketsTableProp
               <td className="px-3 py-3 text-surface-500 dark:text-surface-400">{formatearFecha(t.fechaVencimiento)}</td>
               <td className="px-3 py-3">
                 <div className="flex items-center justify-end gap-1">
-                  <button onClick={() => onEditar(t)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800">
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => onEliminar(t)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-danger-50 hover:text-danger-500 dark:hover:bg-danger-500/10">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  {onEditar && (
+                    <button onClick={() => onEditar(t)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                  )}
+                  {onEliminar && (
+                    <button onClick={() => onEliminar(t)} className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-surface-400 hover:bg-danger-50 hover:text-danger-500 dark:hover:bg-danger-500/10">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>

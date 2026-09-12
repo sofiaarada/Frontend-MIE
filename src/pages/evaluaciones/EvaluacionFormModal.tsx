@@ -223,7 +223,7 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
           <div className="mb-3 flex items-center justify-between">
             <label className="text-sm font-medium text-surface-700 dark:text-surface-200 flex items-center gap-2">
               Checklist de evaluación
-              <HelpCircle className="h-4 w-4 text-surface-400" title="Marcá cada ítem según su estado actual" />
+              <HelpCircle className="h-4 w-4 text-surface-400" aria-label="Marcá cada ítem según su estado actual" />
             </label>
             {!soloLectura && (
               <div className="flex items-center gap-2">
@@ -287,7 +287,7 @@ export function EvaluacionFormModal({ abierto, onCerrar, onGuardar, inspeccion, 
         <div>
           <label className="mb-1.5 block text-sm font-medium text-surface-700 dark:text-surface-200 flex items-center gap-2">
             Observaciones generales
-            <HelpCircle className="h-4 w-4 text-surface-400" title="Notas adicionales sobre la evaluación" />
+            <HelpCircle className="h-4 w-4 text-surface-400" aria-label="Notas adicionales sobre la evaluación" />
           </label>
           <textarea
             rows={3}

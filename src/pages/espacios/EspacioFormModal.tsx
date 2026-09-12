@@ -103,7 +103,7 @@ export function EspacioFormModal({ abierto, onCerrar, onGuardar, espacio, soloLe
         reset({ ...espacio, ultimaInspeccion: espacio.ultimaInspeccion ?? '', fotoUrl: espacio.fotoUrl ?? '' });
       } else {
         // Generar código automático solo para nuevo espacio
-        const codigosExistentes = []; // Se podría cargar de la API si se desea
+        const codigosExistentes: string[] = []; // Se podría cargar de la API si se desea
         const codigoSugerido = generarSiguienteCodigo(codigosExistentes);
         reset({ ...valoresVacios, codigo: codigoSugerido });
       }
